@@ -1,0 +1,70 @@
+@startuml Chess
+title Chess
+
+class Piece {
+    -char type
+    -char colour
+    -Pair<int row, int col> coordinate
+    -Board board
+    -boolean moved
+    +char getType()
+    +char getColour()
+    ~List<Move> getLegalMoves()
+    -List<Move> getUnidirectionalMoves()
+    -List<Move> getPawnMoves()
+    -List<Move> getKnightMoves()
+
+}
+
+class Move {
+    -Pair<int row, int col> fromCoordinate
+    -Pair<int row, int col> toCoordinate
+    +boolean isValidMove(Move move)
+    +String toString()
+
+}
+
+class Board {
+    -List<ArrayList<Piece>> grid
+    -Board previousBoard
+    -Board nextBoard
+    +boolean makeMove(Move move)
+    +Piece getPiece(Pair<int row, int col> coordinate)
+    +void castle(Piece piece)
+    +Board goToNextBoard()
+    +Board goToPreviousBoard()
+    +String toString()
+    -boolean checkBoardForCheck()
+    -boolean checkBoardForMate()
+    -boolean checkBoardForPawnPromotion()
+    -boolean checkBoardForStaleMate()
+    -List<Pair<int row, int col>> getThreatenedSquares(char colour)
+    -void setPiece(Pair<int row, int col> coordinate)
+    -Piece removePiece(Pair<int row, int col> coordinate)
+    
+
+}
+
+class Game {
+    -Board board
+    -Calendar date
+    -String playerOne
+    -String playerTwo
+    -List<Move> moves
+    +Board getBoard()
+    +Date getDate()
+    +String getPlayerOne()
+    +String getPlayerTwo()
+    +List<Move> getMoves()
+    +void stepBackward()
+    +void stepForward()
+
+}
+Game --> "*" Move
+Game --> "1:1" Board
+Board "1:1"  -- "2:32" Piece
+Board -- Board
+
+
+
+@enduml
