@@ -1,19 +1,11 @@
 @startuml Chess
 title Chess
 
-class Piece {
-    -char type
-    -char colour
-    -Pair<int row, int col> coordinate
-    -Board board
-    -boolean moved
-    +char getType()
-    +char getColour()
-    ~List<Move> getLegalMoves()
-    -List<Move> getUnidirectionalMoves()
-    -List<Move> getPawnMoves()
-    -List<Move> getKnightMoves()
 
+enum ChessColours {
+    WHITE
+    BLACK
+    String toString()
 }
 
 class Move {
@@ -58,8 +50,44 @@ class Game {
     +List<Move> getMoves()
     +void stepBackward()
     +void stepForward()
+    +boolean checkBoardState()
 
 }
+
+abstract class Piece {
+    -char colour
+    -Pair<int row, int col> coordinate
+    -Board board
+    + {abstract} List<Move> getLegalMoves()
+    + {abstract} Piece getType()
+    +char getColour()
+    
+}
+
+class Rook extends Piece {
+    -boolean moved
+}
+
+class Pawn extends Piece {
+
+}
+
+class Bishop extends Piece {
+    
+}
+
+class Knight extends Piece {
+
+}
+
+class King extends Piece {
+    -boolean moved
+}
+
+class Queen extends Piece {
+
+}
+
 Game --> "*" Move
 Game --> "1:1" Board
 Board "1:1"  -- "2:32" Piece
