@@ -5,12 +5,17 @@ import java.util.ArrayList;
 
 public class Pawn extends Piece{
 
-    public Rook(Colour colour, Board board, int[] coordinates) {
-        super(colour, board, coordinates);
+    public Pawn(Colour colour) {
+        super(colour);
     }
     
-    public List<Move> getLegalMoves() {
+    public List<Move> getValidMoves(Board board, int[] coordinates) {
         List<Move> list = new ArrayList<Move>();
         return list;
+    }
+
+    @Override
+    public String toString() {
+        return colour.toString() + "Pawn";
     }
 }

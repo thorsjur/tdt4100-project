@@ -2,15 +2,15 @@
 title Chess
 
 
-enum ChessColours {
+enum Colour {
     WHITE
     BLACK
     String toString()
 }
 
 class Move {
-    -Pair<int row, int col> fromCoordinate
-    -Pair<int row, int col> toCoordinate
+    -int[] fromCoordinate
+    -int[] toCoordinate
     +boolean isValidMove(Move move)
     +String toString()
 
@@ -55,17 +55,15 @@ class Game {
 }
 
 abstract class Piece {
-    -char colour
-    -Pair<int row, int col> coordinate
-    -Board board
-    + {abstract} List<Move> getLegalMoves()
-    + {abstract} Piece getType()
-    +char getColour()
+    -Colour colour
+    -boolean hasMoved
+    + {abstract} List<Move> getLegalMoves(Board board, int[] coordinates)
+    + {abstract} String toString()
+    +Colour getColour()
     
 }
 
 class Rook extends Piece {
-    -boolean moved
 }
 
 class Pawn extends Piece {
@@ -81,7 +79,7 @@ class Knight extends Piece {
 }
 
 class King extends Piece {
-    -boolean moved
+
 }
 
 class Queen extends Piece {
@@ -90,7 +88,7 @@ class Queen extends Piece {
 
 Game --> "*" Move
 Game --> "1:1" Board
-Board "1:1"  -- "2:32" Piece
+Board  --> "2:32" Piece
 Board -- Board
 
 

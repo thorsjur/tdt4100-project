@@ -10,7 +10,7 @@ public class Game {
     private Calendar date;
     String playerOne;
     String playerTwo;
-    List<Move> moves;
+    List<Move> moves = new ArrayList<>();
 
     
 }
