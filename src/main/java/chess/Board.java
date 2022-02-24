@@ -17,6 +17,10 @@ public class Board {
         this.initializeBoard();
     }
 
+    public Piece[][] getGrid() {
+        return grid;
+    }
+
     private void initializeBoard() {
         // Setter ut bønder
         for (int i = 0; i < grid.length; i++) {
@@ -30,25 +34,28 @@ public class Board {
         grid[7][0] = new Rook(Colour.WHITE);
         grid[7][7] = new Rook(Colour.WHITE);
 
-        //setter springere
+        // setter springere
         grid[0][1] = new Knight(Colour.BLACK);
         grid[0][6] = new Knight(Colour.BLACK);
         grid[7][1] = new Knight(Colour.WHITE);
         grid[7][6] = new Knight(Colour.WHITE);
 
-        //setter løpere
+        // setter løpere
         grid[0][2] = new Bishop(Colour.BLACK);
         grid[0][5] = new Bishop(Colour.BLACK);
         grid[7][2] = new Bishop(Colour.WHITE);
         grid[7][5] = new Bishop(Colour.WHITE);
 
-        //setter konger
+        // setter konger
         grid[0][4] = new King(Colour.BLACK);
         grid[7][4] = new King(Colour.WHITE);
 
-
+        // setter dronninger
+        grid[0][3] = new Queen(Colour.BLACK);
+        grid[7][3] = new Queen(Colour.WHITE);
 
     }
+
 
     @Override
     public String toString() {

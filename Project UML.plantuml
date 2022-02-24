@@ -90,6 +90,7 @@ Game --> "*" Move
 Game --> "1:1" Board
 Board  --> "2:32" Piece
 Board -- Board
+Piece --> Colour
 
 
 

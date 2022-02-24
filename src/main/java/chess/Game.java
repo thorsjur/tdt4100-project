@@ -12,5 +12,17 @@ public class Game {
     String playerTwo;
     List<Move> moves = new ArrayList<>();
 
+    public Game() {
+        board = new Board();
+    }
+
+    public Game(Board board) {
+        this.board = board;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
     
 }
