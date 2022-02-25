@@ -11,6 +11,7 @@ public class Game {
     String playerOne;
     String playerTwo;
     List<Move> moves = new ArrayList<>();
+    Colour turn = Colour.WHITE;
 
     public Game() {
         board = new Board();
@@ -22,6 +23,15 @@ public class Game {
 
     public Board getBoard() {
         return board;
+    }
+
+    public Colour getTurn() {
+        return turn;
+    }
+
+    public void makeMove(Piece piece, int[] toCoordinates) {
+        board.movePiece(piece, toCoordinates);
+        System.out.println(piece + " moved to " + toCoordinates);
     }
 
     

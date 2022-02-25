@@ -21,6 +21,61 @@ public class Board {
         return grid;
     }
 
+    public Piece getPiece(int[] coordinates) {
+        return grid[coordinates[0]][coordinates[1]];
+    }
+
+    public static Colour getColourOfSquare(int[] coordinates) {
+        int row = coordinates[0];
+        int col = coordinates[1];
+        return (row + col) % 2 == 0 ? Colour.WHITE : Colour.BLACK;
+    }
+
+    public static int[] getCoordinatesOfSquare(String fxIdName) {
+        int row = fxIdName.charAt(fxIdName.length() - 2) - '0';
+        int col = fxIdName.charAt(fxIdName.length() - 1) - '0';
+        int[] coordinates = {row, col};
+        return coordinates;
+    }
+
+    public void movePiece(Piece piece, int[] toCoordinates) {
+        int[] coordinatesOfPiece = getCoordinatesOfPiece(piece);
+        setPiece(piece, toCoordinates);
+        removePiece(coordinatesOfPiece);
+    }
+
+    public int[] getCoordinatesOfPiece(Piece piece) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (grid[i][j] == piece) {
+                    int[] coordinates = {i, j};
+                    return coordinates;
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean isValidMove(Piece piece, int[] toCoordinates) {
+        List<Move> moves = piece.getValidMoves(this);
+        for (Move move : moves) {
+            if (move.equals(new Move(getCoordinatesOfPiece(piece), toCoordinates))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void setPiece(Piece piece, int[] toCoordinates) {
+        int toRow = toCoordinates[0];
+        int toCol = toCoordinates[1];
+        grid[toRow][toCol] = piece;
+    }
+
+    private void removePiece(int[] coordinates) {
+        grid[coordinates[0]][coordinates[1]] = null;
+    }
+
     private void initializeBoard() {
         // Setter ut bønder
         for (int i = 0; i < grid.length; i++) {

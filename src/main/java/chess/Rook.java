@@ -9,7 +9,7 @@ public class Rook extends Piece{
         super(colour);
     }
     
-    public List<Move> getValidMoves(Board board, int[] coordinates) {
+    public List<Move> getValidMoves(Board board) {
         List<Move> list = new ArrayList<Move>();
         return list;
     }

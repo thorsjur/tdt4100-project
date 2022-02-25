@@ -7,6 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+import javafx.scene.Node;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -16,6 +18,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.Parent;
 import java.io.File;
+import javafx.scene.input.MouseEvent;
 
 public class ChessController {
     @FXML
@@ -23,23 +26,14 @@ public class ChessController {
 
     private Game game;
 
-    @FXML
-    private ImageView 
-        image00, image01, image02, image03, image04, image05, image06, image07,
-        image10, image11, image12, image13, image14, image15, image16, image17,
-        image20, image21, image22, image23, image24, image25, image26, image27,
-        image30, image31, image32, image33, image34, image35, image36, image37,
-        image40, image41, image42, image43, image44, image45, image46, image47,
-        image50, image51, image52, image53, image54, image55, image56, image57,
-        image60, image61, image62, image63, image64, image65, image66, image67,
-        image70, image71, image72, image73, image74, image75, image76, image77;
-
-    private List<ImageView> imageViewList;
+    private List<Pane> paneList = new ArrayList<>();
+    private List<ImageView> imageViewList = new ArrayList<>();
+    private Pane selectedPane;
+    private Piece selectedPiece;
     
     @FXML
     GridPane gridPane;
 
-    @FXML
     public void updateBoard() {
         HashMap<String, ImageView> imageMap = new HashMap<String, ImageView>();
         for (ImageView imageView : imageViewList) {
@@ -58,39 +52,92 @@ public class ChessController {
             if (piece != null) {
                 imagePath = "src/images/" + piece.toString() + ".png";
                 currentImageView.setImage(new Image(new File(imagePath).toURI().toString()));
-                System.out.println(imagePath);
             } else {
                 currentImageView.setImage(null);
             }
         }
+   
+    }
 
+    @FXML
+    public void handleOnPieceClick(MouseEvent event) {
+        ImageView clickedImageView = (ImageView) event.getPickResult().getIntersectedNode();
+        if (selectedPane == null) {
+            selectPane(clickedImageView);
+            return;
+        }
+        if (selectedPane == clickedImageView.getParent()) {
+            deselectPane();
+            return;
+        }
+        int[] coordinatesOfClickedPane = Board.getCoordinatesOfSquare(clickedImageView.getId());
+        if (game.getBoard().isValidMove(selectedPiece, coordinatesOfClickedPane)) {
+            game.makeMove(selectedPiece, coordinatesOfClickedPane);
+            deselectPane();
+        } else {
+            deselectPane();
+            selectPane(clickedImageView);
+        }
+        updateBoard(); 
+    }
+
+    private void selectPane(ImageView selectedImageView) {
+        String imageViewId = selectedImageView.getId();
+        selectedPiece = game.getBoard().getPiece(Board.getCoordinatesOfSquare(imageViewId));
         
-        
+        if (selectedImageView == null || selectedPiece == null || selectedPiece.getColour() != game.getTurn()) {
+            return;
+        }
+        selectedPane = (Pane) selectedImageView.getParent();
+        highlightPane(selectedPane);
+    }
+
+    private void deselectPane() {
+        if (selectedPane != null) {
+            removeHighlightPane(selectedPane);
+            selectedPane = null;
+        }
+        selectedPiece = null;
+    }
+
+    private void highlightPane(Pane pane) {
+        if (pane == null) {
+            return;
+        }
+        pane.setStyle("-fx-background-color: " + "#429d42");
+    }
+
+    private void removeHighlightPane(Pane pane) {
+        if (pane == null) {
+            return;
+        }
+        String paneId = pane.getId();
+        String hexColour = Board.getColourOfSquare(Board.getCoordinatesOfSquare(paneId)).getHexColour();
+        pane.setStyle("-fx-background-color: " + hexColour);
+    }
+
+    private void initializePanesAndImageViews() {
+        for (Node node : gridPane.getChildren()) {
+            if (node instanceof Pane) {
+                Pane pane = (Pane) node;
+                paneList.add(pane);
+
+                imageViewList.add((ImageView) pane.getChildren().get(0));
+            }
+        }
     }
 
     @FXML
     public void initialize() {
-        /* imageTest.setImage(new Image(new File("images/WhitePawn.png").toURI().toString())); */
-        
-        imageViewList = Arrays.asList(
-            image00, image01, image02, image03, image04, image05, image06, image07,
-            image10, image11, image12, image13, image14, image15, image16, image17,
-            image20, image21, image22, image23, image24, image25, image26, image27,
-            image30, image31, image32, image33, image34, image35, image36, image37,
-            image40, image41, image42, image43, image44, image45, image46, image47,
-            image50, image51, image52, image53, image54, image55, image56, image57,
-            image60, image61, image62, image63, image64, image65, image66, image67,
-            image70, image71, image72, image73, image74, image75, image76, image77
-        );
+        initializePanesAndImageViews();
         game = new Game();
         this.updateBoard();
-        /* image32.setImage(new Image(new File("src/images/WhitePawn.png").toURI().toString())); */
-        
-        
-        
 
         
 
+        paneList.get(1).setStyle("-fx-background-color: #ffffff");
+
+        System.out.println(paneList);
         }
 
     

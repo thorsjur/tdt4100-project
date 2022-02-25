@@ -11,7 +11,7 @@ public abstract class Piece {
         this.colour = colour;
     }
 
-    public abstract List<Move> getValidMoves(Board board, int[] position);
+    public abstract List<Move> getValidMoves(Board board);
 
     public Colour getColour() {
         return colour;
