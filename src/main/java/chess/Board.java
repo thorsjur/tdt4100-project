@@ -5,24 +5,39 @@ import java.util.List;
 
 public class Board {
     
-    private Piece[][] grid = new Piece[8][8];
+    private Square[][] chessBoard = new Square[8][8];
     private Board previousBoard;
     private Board nextBoard;
+    private Square selectedSquare;
 
-    public Board(Piece[][] grid) {
-        this.grid = grid;
+    public Board(List<Square> squareList, Square[][] chessBoard) {
+        this.chessBoard = chessBoard;
     }
 
-    public Board() {
-        this.initializeBoard();
+    public Board(List<Square> squareList) {
+        this.initializeBoard(squareList);
+    }
+
+    public Square[][] getChessBoard() {
+        return chessBoard;
     }
 
     public Piece[][] getGrid() {
+        Piece[][] grid = new Piece[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                grid[i][j] = chessBoard[i][j].getPiece();
+            }
+        }
         return grid;
     }
 
     public Piece getPiece(int[] coordinates) {
-        return grid[coordinates[0]][coordinates[1]];
+        return getGrid()[coordinates[0]][coordinates[1]];
+    }
+
+    public Square getSquare(int[] coordinates) {
+        return chessBoard[coordinates[0]][coordinates[1]];
     }
 
     public static Colour getColourOfSquare(int[] coordinates) {
@@ -45,9 +60,10 @@ public class Board {
     }
 
     public int[] getCoordinatesOfPiece(Piece piece) {
+        if (piece == null) return null;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (grid[i][j] == piece) {
+                if (getGrid()[i][j] == piece) {
                     int[] coordinates = {i, j};
                     return coordinates;
                 }
@@ -57,9 +73,12 @@ public class Board {
     }
 
     public boolean isValidMove(Piece piece, int[] toCoordinates) {
-        List<Move> moves = piece.getValidMoves(this);
-        for (Move move : moves) {
-            if (move.equals(new Move(getCoordinatesOfPiece(piece), toCoordinates))) {
+        if (piece == null) {
+            return false;
+        }
+        List<Move> moveList = piece.getValidMoves(this);
+        for (Move move : moveList) {
+            if (move.equals(new Move(piece.getCoordinates(this), toCoordinates))) {
                 return true;
             }
         }
@@ -69,45 +88,74 @@ public class Board {
     private void setPiece(Piece piece, int[] toCoordinates) {
         int toRow = toCoordinates[0];
         int toCol = toCoordinates[1];
-        grid[toRow][toCol] = piece;
+        getChessBoard()[toRow][toCol].setPiece(piece);
     }
 
     private void removePiece(int[] coordinates) {
-        grid[coordinates[0]][coordinates[1]] = null;
+        getChessBoard()[coordinates[0]][coordinates[1]].setPiece(null);
     }
 
-    private void initializeBoard() {
-        // Setter ut bønder
-        for (int i = 0; i < grid.length; i++) {
-            grid[1][i] = new Pawn(Colour.BLACK);
-            grid[6][i] = new Pawn(Colour.WHITE);
+    public Square getSelectedSquare() {
+        return selectedSquare;
+    }
+
+    public void selectSquare(int[] coordinates) {
+        selectedSquare = getSquare(coordinates);
+    }
+
+    public void selectSquare(Square square) {
+        selectedSquare = square;
+    }
+
+    public void removeAllHighlights() {
+        for (Square[] row : chessBoard) {
+            for (Square square : row) {
+                if (selectedSquare != null && selectedSquare == square) {
+                    continue;
+                }
+                square.removeHighlight();
+            }
+        }
+    }
+
+    private void initializeBoard(List<Square> squareList) {
+        for (Square square : squareList) {
+            int[] coordinate = square.getCoordinates();
+            chessBoard[coordinate[0]][coordinate[1]] = square;
+            square.setBoard(this);
+        }
+
+        // Setter bønder
+        for (int i = 0; i < chessBoard.length; i++) {
+            chessBoard[1][i].setPiece(new Pawn(Colour.BLACK));
+            chessBoard[6][i].setPiece(new Pawn(Colour.WHITE));
         }
 
         // Setter tårn
-        grid[0][0] = new Rook(Colour.BLACK);
-        grid[0][7] = new Rook(Colour.BLACK);
-        grid[7][0] = new Rook(Colour.WHITE);
-        grid[7][7] = new Rook(Colour.WHITE);
+        chessBoard[0][0].setPiece(new Rook(Colour.BLACK));
+        chessBoard[0][7].setPiece(new Rook(Colour.BLACK));
+        chessBoard[7][0].setPiece(new Rook(Colour.WHITE));
+        chessBoard[7][7].setPiece(new Rook(Colour.WHITE));
 
         // setter springere
-        grid[0][1] = new Knight(Colour.BLACK);
-        grid[0][6] = new Knight(Colour.BLACK);
-        grid[7][1] = new Knight(Colour.WHITE);
-        grid[7][6] = new Knight(Colour.WHITE);
+        chessBoard[0][1].setPiece(new Knight(Colour.BLACK));
+        chessBoard[0][6].setPiece(new Knight(Colour.BLACK));
+        chessBoard[7][1].setPiece(new Knight(Colour.WHITE));
+        chessBoard[7][6].setPiece(new Knight(Colour.WHITE));
 
         // setter løpere
-        grid[0][2] = new Bishop(Colour.BLACK);
-        grid[0][5] = new Bishop(Colour.BLACK);
-        grid[7][2] = new Bishop(Colour.WHITE);
-        grid[7][5] = new Bishop(Colour.WHITE);
+        chessBoard[0][2].setPiece(new Bishop(Colour.BLACK));
+        chessBoard[0][5].setPiece(new Bishop(Colour.BLACK));
+        chessBoard[7][2].setPiece(new Bishop(Colour.WHITE));
+        chessBoard[7][5].setPiece(new Bishop(Colour.WHITE));
 
         // setter konger
-        grid[0][4] = new King(Colour.BLACK);
-        grid[7][4] = new King(Colour.WHITE);
+        chessBoard[0][4].setPiece(new King(Colour.BLACK));
+        chessBoard[7][4].setPiece(new King(Colour.WHITE));
 
         // setter dronninger
-        grid[0][3] = new Queen(Colour.BLACK);
-        grid[7][3] = new Queen(Colour.WHITE);
+        chessBoard[0][3].setPiece(new Queen(Colour.BLACK));
+        chessBoard[7][3].setPiece(new Queen(Colour.WHITE));
 
     }
 
@@ -115,7 +163,7 @@ public class Board {
     @Override
     public String toString() {
         String newString = "";
-        for (Piece[] row : grid) {
+        for (Piece[] row : getGrid()) {
             newString += "\n";
             for (Piece piece : row) {
                 if (piece != null) {

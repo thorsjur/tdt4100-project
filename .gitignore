@@ -2,6 +2,7 @@
 # Created by https://www.gitignore.io/api/java,maven,eclipse,intellij+all,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=java,maven,eclipse,intellij+all,visualstudiocode
 
+target/
 .metadata
 bin/
 tmp/
@@ -13,6 +14,7 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+*.class
 
 # External tool builders
 .externalToolBuilders/
@@ -199,3 +201,8 @@ buildNumber.properties
 .history
 
 # End of https://www.gitignore.io/api/java,maven,eclipse,intellij+all,visualstudiocode
+target/classes/chess/Board.class
+target/classes/chess/Game.class
+target/classes/chess/Move.class
+target/classes/chess/Pawn.class
+target/classes/chess/Piece.class

@@ -21,7 +21,7 @@ public enum Colour {
         public String getHexColour() {
             return "#3c3d3b";
         }
-    },;
+    };
 
     public String getHexColour() {
         return this.getHexColour();

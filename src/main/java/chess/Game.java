@@ -11,10 +11,13 @@ public class Game {
     String playerOne;
     String playerTwo;
     List<Move> moves = new ArrayList<>();
+    List<Square> squareList;
     Colour turn = Colour.WHITE;
+    
 
-    public Game() {
-        board = new Board();
+    public Game(List<Square> squareList) {
+        this.squareList = squareList;
+        board = new Board(squareList);
     }
 
     public Game(Board board) {

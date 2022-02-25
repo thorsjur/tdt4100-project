@@ -26,11 +26,10 @@ public class ChessController {
 
     private Game game;
 
-    private List<Pane> paneList = new ArrayList<>();
+    private List<Square> squareList = new ArrayList<>();
     private List<ImageView> imageViewList = new ArrayList<>();
-    private Pane selectedPane;
     private Piece selectedPiece;
-    
+
     @FXML
     GridPane gridPane;
 
@@ -61,83 +60,54 @@ public class ChessController {
 
     @FXML
     public void handleOnPieceClick(MouseEvent event) {
-        ImageView clickedImageView = (ImageView) event.getPickResult().getIntersectedNode();
-        if (selectedPane == null) {
-            selectPane(clickedImageView);
-            return;
-        }
-        if (selectedPane == clickedImageView.getParent()) {
-            deselectPane();
-            return;
-        }
-        int[] coordinatesOfClickedPane = Board.getCoordinatesOfSquare(clickedImageView.getId());
-        if (game.getBoard().isValidMove(selectedPiece, coordinatesOfClickedPane)) {
-            game.makeMove(selectedPiece, coordinatesOfClickedPane);
-            deselectPane();
-        } else {
-            deselectPane();
-            selectPane(clickedImageView);
-        }
-        updateBoard(); 
-    }
-
-    private void selectPane(ImageView selectedImageView) {
-        String imageViewId = selectedImageView.getId();
-        selectedPiece = game.getBoard().getPiece(Board.getCoordinatesOfSquare(imageViewId));
+        Board board = game.getBoard();
+        Square selectedSquare = board.getSelectedSquare();
+        Square clickedSquare = (Square) event.getPickResult().getIntersectedNode().getParent();
+        Piece clickedPiece = clickedSquare.getPiece();
         
-        if (selectedImageView == null || selectedPiece == null || selectedPiece.getColour() != game.getTurn()) {
+        if (selectedSquare == null) {
+            clickedSquare.selectSquare(game.getTurn());
+            if (clickedPiece != null && clickedPiece.getColour() == game.getTurn()) clickedPiece.highlightValidMoves(board);
+            updateBoard();
+            return; 
+        }
+        if (selectedSquare == clickedSquare) {
+            clickedSquare.deselectSquare();
+            board.removeAllHighlights();
+            updateBoard();
             return;
         }
-        selectedPane = (Pane) selectedImageView.getParent();
-        highlightPane(selectedPane);
-    }
-
-    private void deselectPane() {
-        if (selectedPane != null) {
-            removeHighlightPane(selectedPane);
-            selectedPane = null;
+        selectedPiece = selectedSquare.getPiece();
+        selectedPiece.highlightValidMoves(board);
+        int[] coordinates = clickedSquare.getCoordinates();
+        if (selectedPiece != null && board.isValidMove(selectedPiece, coordinates)) {
+            game.makeMove(selectedPiece, coordinates);
+            clickedSquare.deselectSquare();
+            board.removeAllHighlights();
+        } else {
+            selectedSquare.deselectSquare();
+            clickedSquare.selectSquare(game.getTurn());
+            board.removeAllHighlights();
+            if (clickedPiece != null && clickedPiece.getColour() == game.getTurn()) clickedPiece.highlightValidMoves(board);
         }
-        selectedPiece = null;
+        updateBoard();
     }
 
-    private void highlightPane(Pane pane) {
-        if (pane == null) {
-            return;
-        }
-        pane.setStyle("-fx-background-color: " + "#429d42");
-    }
-
-    private void removeHighlightPane(Pane pane) {
-        if (pane == null) {
-            return;
-        }
-        String paneId = pane.getId();
-        String hexColour = Board.getColourOfSquare(Board.getCoordinatesOfSquare(paneId)).getHexColour();
-        pane.setStyle("-fx-background-color: " + hexColour);
-    }
-
-    private void initializePanesAndImageViews() {
+    private void initializeSquaresAndPieces() {
         for (Node node : gridPane.getChildren()) {
-            if (node instanceof Pane) {
-                Pane pane = (Pane) node;
-                paneList.add(pane);
-
-                imageViewList.add((ImageView) pane.getChildren().get(0));
+            if (node instanceof Square) {
+                Square square = (Square) node;
+                squareList.add(square);
+                imageViewList.add((ImageView) square.getChildren().get(0));
             }
         }
     }
 
     @FXML
     public void initialize() {
-        initializePanesAndImageViews();
-        game = new Game();
+        initializeSquaresAndPieces();
+        game = new Game(squareList);
         this.updateBoard();
-
-        
-
-        paneList.get(1).setStyle("-fx-background-color: #ffffff");
-
-        System.out.println(paneList);
         }
 
     
