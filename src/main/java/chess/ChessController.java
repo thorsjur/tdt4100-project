@@ -17,21 +17,22 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import java.io.File;
 import javafx.scene.input.MouseEvent;
 
 public class ChessController {
-    @FXML
-    private TextField firstNumber, secondNumber, operator;
 
     private Game game;
-
     private List<Square> squareList = new ArrayList<>();
     private List<ImageView> imageViewList = new ArrayList<>();
     private Piece selectedPiece;
 
     @FXML
-    GridPane gridPane;
+    private GridPane gridPane;
+
+    @FXML
+    private Button nextTurnButton;
 
     public void updateBoard() {
         HashMap<String, ImageView> imageMap = new HashMap<String, ImageView>();
@@ -55,7 +56,6 @@ public class ChessController {
                 currentImageView.setImage(null);
             }
         }
-   
     }
 
     @FXML
@@ -64,32 +64,50 @@ public class ChessController {
         Square selectedSquare = board.getSelectedSquare();
         Square clickedSquare = (Square) event.getPickResult().getIntersectedNode().getParent();
         Piece clickedPiece = clickedSquare.getPiece();
-        
+
         if (selectedSquare == null) {
             clickedSquare.selectSquare(game.getTurn());
-            if (clickedPiece != null && clickedPiece.getColour() == game.getTurn()) clickedPiece.highlightValidMoves(board);
+            if (clickedPiece != null && clickedPiece.getColour() == game.getTurn())
+                clickedPiece.highlightValidMoves();
             updateBoard();
-            return; 
+            return;
         }
+
         if (selectedSquare == clickedSquare) {
             clickedSquare.deselectSquare();
             board.removeAllHighlights();
             updateBoard();
             return;
         }
+
         selectedPiece = selectedSquare.getPiece();
-        selectedPiece.highlightValidMoves(board);
+        selectedPiece.highlightValidMoves();
         int[] coordinates = clickedSquare.getCoordinates();
         if (selectedPiece != null && board.isValidMove(selectedPiece, coordinates)) {
             game.makeMove(selectedPiece, coordinates);
+            board.rotateBoard();
+            game.nextTurn();
             clickedSquare.deselectSquare();
             board.removeAllHighlights();
-        } else {
-            selectedSquare.deselectSquare();
-            clickedSquare.selectSquare(game.getTurn());
-            board.removeAllHighlights();
-            if (clickedPiece != null && clickedPiece.getColour() == game.getTurn()) clickedPiece.highlightValidMoves(board);
+            updateBoard();
+            return;
         }
+        
+        selectedSquare.deselectSquare();
+        clickedSquare.selectSquare(game.getTurn());
+        board.removeAllHighlights();
+        if (clickedPiece != null && clickedPiece.getColour() == game.getTurn())
+            clickedPiece.highlightValidMoves();
+        updateBoard();
+    }
+
+    @FXML
+    public void handleOnButtonClick(MouseEvent event) {
+        Board board = game.getBoard();
+        game.getBoard().rotateBoard();
+        game.nextTurn();
+        board.deselectSquare();
+        board.removeAllHighlights();
         updateBoard();
     }
 
@@ -107,9 +125,7 @@ public class ChessController {
     public void initialize() {
         initializeSquaresAndPieces();
         game = new Game(squareList);
-        this.updateBoard();
-        }
-
-    
+        updateBoard();
+    }
 
 }

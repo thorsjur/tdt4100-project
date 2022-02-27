@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "vmArgs": "--module-path %PATH_TO_FX% --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "Launch ChessApp",
+            "request": "launch",
+            "mainClass": "TDT4100_project/chess.ChessApp",
+            "projectName": "tdt4100_v2022_prosjekt_boilerplate",
+            "vmArgs": "--module-path %PATH_TO_FX% --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "Launch ExampleProjectApp",
+            "request": "launch",
+            "mainClass": "TDT4100_project/exampleproject.ExampleProjectApp",
+            "projectName": "tdt4100_v2022_prosjekt_boilerplate",
+            "vmArgs": "--module-path %PATH_TO_FX% --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "Launch TestRun",
+            "request": "launch",
+            "mainClass": "TDT4100_project/test.TestRun",
+            "projectName": "tdt4100_v2022_prosjekt_boilerplate",
+            "vmArgs": "--module-path %PATH_TO_FX% --add-modules javafx.controls,javafx.fxml"
+        }
+    ]
+}

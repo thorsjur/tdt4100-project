@@ -3,15 +3,19 @@ package chess;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Bishop extends Piece{
+public class Bishop extends Piece {
 
-    public Bishop(Colour colour) {
-        super(colour);
+    public Bishop(Colour colour, Board board) {
+        super(colour, board);
+        moveDirections = new Direction[]{Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_RIGHT, Direction.DOWN_LEFT};
     }
-    
-    public List<Move> getValidMoves(Board board) {
-        List<Move> list = new ArrayList<Move>();
-        return list;
+
+    public List<Move> getValidMoves() {
+        List<Move> moveList = new ArrayList<Move>();
+        for (Direction direction : moveDirections) {
+            moveList.addAll(getUnidirectionalMoves(direction, getCoordinates(), true));
+        }
+        return moveList;
     }
 
     @Override

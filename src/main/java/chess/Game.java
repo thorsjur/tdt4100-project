@@ -1,23 +1,21 @@
 package chess;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.ArrayList;
 
 public class Game {
-    
+
     private Board board;
-    private Calendar date;
-    String playerOne;
-    String playerTwo;
-    List<Move> moves = new ArrayList<>();
-    List<Square> squareList;
-    Colour turn = Colour.WHITE;
-    
+    private final Calendar date = new GregorianCalendar();
+    private String playerOne;
+    private String playerTwo;
+    private List<Move> moves = new ArrayList<>();
+    private Colour turn = Colour.WHITE;
 
     public Game(List<Square> squareList) {
-        this.squareList = squareList;
-        board = new Board(squareList);
+        board = new Board(squareList, turn);
     }
 
     public Game(Board board) {
@@ -32,10 +30,13 @@ public class Game {
         return turn;
     }
 
-    public void makeMove(Piece piece, int[] toCoordinates) {
-        board.movePiece(piece, toCoordinates);
-        System.out.println(piece + " moved to " + toCoordinates);
+    public void nextTurn() {
+        turn = turn == Colour.WHITE ? Colour.BLACK : Colour.WHITE;
     }
 
-    
+    public void makeMove(Piece piece, int[] toCoordinates) {
+        System.out.println(piece + " moved to " + board.getPiece(toCoordinates));
+        board.movePiece(piece, toCoordinates);
+    }
+
 }

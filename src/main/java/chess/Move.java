@@ -35,8 +35,8 @@ public class Move {
             return this.getHexColour();
         }
     }
-    
-    MoveType type;
+
+    private MoveType type;
     private int[] fromCoordinates;
     private int[] toCoordinates;
 
@@ -58,6 +58,10 @@ public class Move {
         return toCoordinates;
     }
 
+    public MoveType getType() {
+        return type;
+    }
+
     public void highlightMove(Board board) {
         String hexColour = "#000000";
         if (type != null) {
@@ -69,9 +73,9 @@ public class Move {
 
     @Override
     public boolean equals(Object obj) {
-        if (! (obj instanceof Move)) {
+        if (!(obj instanceof Move)) {
             return false;
-        } 
+        }
         return Arrays.equals(this.getFromCoordinates(), ((Move) obj).getFromCoordinates())
                 && Arrays.equals(this.getToCoordinates(), ((Move) obj).getToCoordinates());
     }

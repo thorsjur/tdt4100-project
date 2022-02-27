@@ -3,14 +3,18 @@ package chess;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Queen extends Piece{
+public class Queen extends Piece {
 
-    public Queen(Colour colour) {
-        super(colour);
+    public Queen(Colour colour, Board board) {
+        super(colour, board);
+        moveDirections = Direction.values();
     }
-    
-    public List<Move> getValidMoves(Board board) {
+
+    public List<Move> getValidMoves() {
         List<Move> list = new ArrayList<Move>();
+        for (Direction direction : moveDirections) {
+            list.addAll(getUnidirectionalMoves(direction, getCoordinates(), true));
+        }
         return list;
     }
 

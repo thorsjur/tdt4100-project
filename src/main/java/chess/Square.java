@@ -6,7 +6,7 @@ public class Square extends Pane {
 
     private Piece piece;
     private Board board;
-    
+
     public Piece getPiece() {
         return piece;
     }
@@ -18,7 +18,7 @@ public class Square extends Pane {
     public void setBoard(Board board) {
         this.board = board;
     }
-    
+
     public void setBackgroundColor(String hexColour) {
         setStyle("-fx-background-color: " + hexColour);
     }
@@ -50,8 +50,7 @@ public class Square extends Pane {
     }
 
     public void removeHighlight() {
-        String squareId = getId();
-        String hexColour = Board.getColourOfSquare(Board.getCoordinatesOfSquare(squareId)).getHexColour();
+        String hexColour = Board.getColourOfSquare(getCoordinates()).getHexColour();
         setStyle("-fx-background-color: " + hexColour);
     }
 
@@ -59,10 +58,10 @@ public class Square extends Pane {
         setStyle("-fx-background-color: " + "#429d42");
     }
 
-
     public int[] getCoordinates() {
         String squareId = getId();
-        int[] coordinates = {squareId.charAt(squareId.length() - 2) - '0', squareId.charAt(squareId.length() - 1) - '0'};
+        int[] coordinates = { squareId.charAt(squareId.length() - 2) - '0',
+                squareId.charAt(squareId.length() - 1) - '0' };
         return coordinates;
     }
 
@@ -76,6 +75,5 @@ public class Square extends Pane {
         }
         return "No piece, " + " at row: " + row + " | col:" + col;
     }
-
 
 }
