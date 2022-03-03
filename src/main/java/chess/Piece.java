@@ -17,13 +17,21 @@ public abstract class Piece {
         DOWN_LEFT(new int[] { 1, -1 });
 
         private final int[] directionVector;
+        private final int[] inverseDirectionVector;
 
         private Direction(int[] directionVector) {
             this.directionVector = directionVector;
+            this.inverseDirectionVector = new int[]{-directionVector[0], -directionVector[1]};
         }
 
-        public int[] getDirectionVector() {
-            return directionVector;
+        public int[] getDirectionVector(Board board) {
+            boolean boardRotationEnabled = board.isBoardRotationEnabled();
+            Colour turn = board.getTurn();
+            return ! boardRotationEnabled && turn == Colour.BLACK ? inverseDirectionVector : directionVector;
+        }
+
+        public int[] getInvertedDirectionVector() {
+            return new int[]{-directionVector[0], -directionVector[1]};
         }
     }
 
@@ -52,10 +60,14 @@ public abstract class Piece {
         return board.getCoordinatesOfPiece(this);
     }
 
+    public Board getBoard() {
+        return board;
+    }
+
     public void highlightValidMoves() {
         List<Move> moveList = getValidMoves();
         for (Move move : moveList) {
-            move.highlightMove(board);
+            if (! move.leadsToCheck(board)) move.highlightMove(board);
         }
     }
 
@@ -70,7 +82,7 @@ public abstract class Piece {
     }
 
     public List<Move> getUnidirectionalMoves(Direction direction, int[] currentCoordinates, boolean take) {
-        int[] directionVector = direction.getDirectionVector();
+        int[] directionVector = direction.getDirectionVector(board);
         int[] toCoordinates = { currentCoordinates[0] + directionVector[0],
                 currentCoordinates[1] + directionVector[1] };
 
@@ -78,7 +90,6 @@ public abstract class Piece {
             return new ArrayList<Move>();
         }
         Piece atPiece = board.getPiece(toCoordinates);
-        /* if (atPiece != null && ((!take && atPiece.getColour() != colour) || atPiece.getColour() == colour)) { */
         if (atPiece != null && (!take || atPiece.getColour() == colour)) {
             return new ArrayList<Move>();
         } else if (take && atPiece != null && atPiece.getColour() != colour) {
@@ -92,5 +103,6 @@ public abstract class Piece {
 
     public Colour getColour() {
         return colour;
+
     }
 }

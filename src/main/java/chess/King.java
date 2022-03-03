@@ -2,7 +2,6 @@ package chess;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class King extends Piece {
 
@@ -24,32 +23,36 @@ public class King extends Piece {
 
     public boolean isThreatened() {
         // Threats from pawns
-        Direction[] directions = {Direction.UP_LEFT, Direction.UP_RIGHT};
-        Class<?>[] classList = {Pawn.class};
-        if (isThreatenedByPiece(directions, classList, true)) return true;
+        Direction[] directions = { Direction.UP_LEFT, Direction.UP_RIGHT };
+        Class<?>[] classList = { Pawn.class };
+        if (isThreatenedByPiece(directions, classList, true))
+            return true;
 
         // Threats from king
         directions = Direction.values();
-        classList = new Class<?>[]{King.class};
-        if (isThreatenedByPiece(directions, classList, true)) return true;
+        classList = new Class<?>[] { King.class };
+        if (isThreatenedByPiece(directions, classList, true))
+            return true;
 
         // Threats from rooks and queen
-        directions = new Direction[]{Direction.UP, Direction.DOWN, Direction.RIGHT, Direction.LEFT};
-        classList = new Class<?>[]{Rook.class, Queen.class};
-        if (isThreatenedByPiece(directions, classList, false)) return true;
-        
+        directions = new Direction[] { Direction.UP, Direction.DOWN, Direction.RIGHT, Direction.LEFT };
+        classList = new Class<?>[] { Rook.class, Queen.class };
+        if (isThreatenedByPiece(directions, classList, false))
+            return true;
+
         // Threats from bishops and queen
-        directions = new Direction[]{Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_LEFT, Direction.DOWN_RIGHT};
-        classList = new Class<?>[]{Bishop.class, Queen.class};
-        if (isThreatenedByPiece(directions, classList, false)) return true;
+        directions = new Direction[] { Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_LEFT,
+                Direction.DOWN_RIGHT };
+        classList = new Class<?>[] { Bishop.class, Queen.class };
+        if (isThreatenedByPiece(directions, classList, false))
+            return true;
 
         // Threats from knights
         int[][] knightJumps = Knight.getJumpArray();
-        int[] fromCoordinates = getCoordinates();
         for (int[] jump : knightJumps) {
-            int[] toCoordinates = {fromCoordinates[0] + jump[0], fromCoordinates[1] + jump[1]};
-            Piece piece = getPieceRelativeToPosition(toCoordinates);
-            if (piece != null && piece instanceof Knight) return true;
+            Piece piece = getPieceRelativeToPosition(jump);
+            if (piece != null && piece.getColour() != this.getColour() && piece instanceof Knight)
+                return true;
         }
         return false;
     }
@@ -61,8 +64,19 @@ public class King extends Piece {
 
     private Piece getOpponentPiece(Direction direction, boolean singleMove) {
         List<Move> moveList = getUnidirectionalMoves(direction, getCoordinates(), true);
+        if (singleMove && moveList.size() > 0) {
+            Move move = moveList.get(0);
+            if (move.getType() == Move.MoveType.TAKE) {
+                return board.getPiece(move.getToCoordinates());
+            }
+            ;
+            return null;
+        }
         for (Move move : moveList) {
-            if (move.getType() == Move.MoveType.TAKE) return board.getPiece(move.getToCoordinates());
+            if (move.getType() == Move.MoveType.TAKE) {
+                return board.getPiece(move.getToCoordinates());
+            }
+            ;
         }
         return null;
     }

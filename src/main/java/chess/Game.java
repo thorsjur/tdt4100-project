@@ -1,9 +1,9 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.ArrayList;
 
 public class Game {
 
@@ -32,11 +32,20 @@ public class Game {
 
     public void nextTurn() {
         turn = turn == Colour.WHITE ? Colour.BLACK : Colour.WHITE;
+        board.nextTurn();
     }
 
     public void makeMove(Piece piece, int[] toCoordinates) {
-        System.out.println(piece + " moved to " + board.getPiece(toCoordinates));
         board.movePiece(piece, toCoordinates);
+        nextTurn();
+    }
+
+    public void disableBoardRotation() {
+        board.setBoardRotation(false);
+    }
+
+    public void enableBoardRotation() {
+        board.setBoardRotation(true);
     }
 
 }

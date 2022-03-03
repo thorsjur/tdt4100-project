@@ -71,6 +71,11 @@ public class Move {
         square.setHighlight(hexColour);
     }
 
+    public boolean leadsToCheck(Board board) {
+        Piece piece = board.getPiece(fromCoordinates);
+        return board.checkNextBoardForCheck(piece, toCoordinates);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Move)) {

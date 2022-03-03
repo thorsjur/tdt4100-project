@@ -24,16 +24,21 @@ public class Square extends Pane {
     }
 
     public void selectSquare() {
-        board.selectSquare(this);
-        setHighlight();
-    }
+        Piece piece = getPiece();
 
-    public void selectSquare(Colour turn) {
-        if (piece != null && piece.getColour() == turn) {
-            selectSquare();
+        if (piece != null && piece.getColour() == board.getTurn()) {
+            if (board.getSelectedSquare() != this) {
+                board.removeAllHighlights();
+                board.selectSquare(this);
+            }
+            board.selectSquare(this);
+            setHighlight();
+            piece.highlightValidMoves();
         } else {
             deselectSquare();
-        }
+            board.removeAllHighlights();
+        } 
+        
     }
 
     public void deselectSquare() {
@@ -42,6 +47,7 @@ public class Square extends Pane {
             selectedSquare.removeHighlight();
         }
         Square nullSquare = null;
+        board.removeAllHighlights();
         board.selectSquare(nullSquare);
     }
 
@@ -50,7 +56,7 @@ public class Square extends Pane {
     }
 
     public void removeHighlight() {
-        String hexColour = Board.getColourOfSquare(getCoordinates()).getHexColour();
+        String hexColour = getColourOfSquare().getHexColour();
         setStyle("-fx-background-color: " + hexColour);
     }
 
@@ -74,6 +80,13 @@ public class Square extends Pane {
             return piece.toString() + " at row: " + row + " | col:" + col;
         }
         return "No piece, " + " at row: " + row + " | col:" + col;
+    }
+
+    private Colour getColourOfSquare() {
+        int[] coordinates = getCoordinates();
+        int row = coordinates[0];
+        int col = coordinates[1];
+        return (row + col) % 2 == 0 ? Colour.WHITE : Colour.BLACK;
     }
 
 }

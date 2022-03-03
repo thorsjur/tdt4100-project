@@ -1,22 +1,37 @@
 package chess;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Board {
 
     private Square[][] chessBoard = new Square[8][8];
-    private Board previousBoard;
-    private Board nextBoard;
+    private Piece[][] previousGrid;
+    private Piece[][] nextGrid;
     private Square selectedSquare;
     private Colour turn;
+    private boolean boardRotationEnabled;
+    private boolean boardRotated = false;
+    private boolean isChanged = true;
 
     public Board(List<Square> squareList, Square[][] chessBoard) {
         this.chessBoard = chessBoard;
     }
 
+    public boolean isChanged() {
+        return isChanged;
+    }
+
+    public void setChanged(boolean isChanged) {
+        this.isChanged = isChanged;
+    }
+
     public Board(List<Square> squareList, Colour turn) {
         this.initializeBoard(squareList);
         this.turn = turn;
+        this.boardRotationEnabled = true;
     }
 
     public Square[][] getChessBoard() {
@@ -31,6 +46,14 @@ public class Board {
             }
         }
         return grid;
+    }
+
+    public void setGrid(Piece[][] grid) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                chessBoard[i][j].setPiece(grid[i][j]);
+            }
+        }
     }
 
     public Piece getPiece(int[] coordinates) {
@@ -50,12 +73,6 @@ public class Board {
         }
     }
 
-    public static Colour getColourOfSquare(int[] coordinates) {
-        int row = coordinates[0];
-        int col = coordinates[1];
-        return (row + col) % 2 == 0 ? Colour.WHITE : Colour.BLACK;
-    }
-
     public int[] getCoordinatesOfPiece(Piece piece) {
         if (piece == null)
             return null;
@@ -70,20 +87,58 @@ public class Board {
         return null;
     }
 
+    public Colour getTurn() {
+        return turn;
+    }
+
+    public void setBoardRotation(boolean boardRotationEnabled) {
+        if ( (boardRotated || boardRotationEnabled) && (! boardRotated || ! boardRotationEnabled) && this.boardRotationEnabled != boardRotationEnabled) {
+            rotateBoard();
+        }
+        this.boardRotationEnabled = boardRotationEnabled;
+        
+    }
+
     public void movePiece(Piece piece, int[] toCoordinates) {
         int[] coordinatesOfPiece = getCoordinatesOfPiece(piece);
         piece.registerMove();
         setPiece(piece, toCoordinates);
         removePiece(coordinatesOfPiece);
+        removeAllHighlights();
+        getSelectedSquare().deselectSquare();
+    }
+    public boolean isBoardRotationEnabled() {
+        return boardRotationEnabled;
+    }
+
+    public void nextTurn() {
         turn = turn == Colour.WHITE ? Colour.BLACK : Colour.WHITE;
-        rotateBoard();
-        System.out.println(getKing(turn).isThreatened() ? getKing(turn).toString() + " threatened" : "no threats");
-        rotateBoard();
+        if (boardRotationEnabled) {
+            rotateBoard();
+        }
+    }
+    
+    public boolean checkBoardForCheck() {
+        boolean threatened = getKing(turn).isThreatened();
+        return threatened;
+    }
+
+    public boolean checkNextBoardForCheck(Piece piece, int[] toCoordinates) {
+        Piece[][] tempGrid = getGrid();
+        boolean threatened = false;
+        mitigatedMovePiece(piece, toCoordinates);
+        if (getKing(turn) != null) threatened = checkBoardForCheck();
+        setGrid(tempGrid);
+        return threatened;
     }
 
     public boolean isValidMove(Piece piece, int[] toCoordinates) {
         if (piece == null) {
             return false;
+        }
+        if (checkNextBoardForCheck(piece, toCoordinates)) {
+            return false;
+            
         }
         List<Move> moveList = piece.getValidMoves();
         for (Move move : moveList) {
@@ -92,16 +147,6 @@ public class Board {
             }
         }
         return false;
-    }
-
-    private void setPiece(Piece piece, int[] toCoordinates) {
-        int toRow = toCoordinates[0];
-        int toCol = toCoordinates[1];
-        getChessBoard()[toRow][toCol].setPiece(piece);
-    }
-
-    private void removePiece(int[] coordinates) {
-        getChessBoard()[coordinates[0]][coordinates[1]].setPiece(null);
     }
 
     public Square getSelectedSquare() {
@@ -135,6 +180,7 @@ public class Board {
     }
 
     public void rotateBoard() {
+        boardRotated = ! boardRotated;
         Piece[][] grid = getGrid();
         Piece[][] gridCopy = new Piece[8][8];
 
@@ -143,12 +189,12 @@ public class Board {
                 gridCopy[i][j] = grid[7 - i][7 - j];
             }
         }
-
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 chessBoard[i][j].setPiece(gridCopy[i][j]);
             }
         }
+        isChanged = true;
     }
 
     private King getKing(Colour colour) {
@@ -158,6 +204,24 @@ public class Board {
             }
         }
         return null;
+    }
+
+    private void setPiece(Piece piece, int[] toCoordinates) {
+        int toRow = toCoordinates[0];
+        int toCol = toCoordinates[1];
+        getChessBoard()[toRow][toCol].setPiece(piece);
+        isChanged = true;
+    }
+
+    private void removePiece(int[] coordinates) {
+        getChessBoard()[coordinates[0]][coordinates[1]].setPiece(null);
+        isChanged = true;
+    }
+
+    private void mitigatedMovePiece(Piece piece, int[] toCoordinates) {
+        int[] coordinates = piece.getCoordinates();
+        setPiece(piece, toCoordinates);
+        removePiece(coordinates);
     }
 
     private void initializeBoard(List<Square> squareList) {
@@ -202,12 +266,30 @@ public class Board {
 
     @Override
     public String toString() {
+        Map<Object, Object> displayMap = Stream.of(new String[][] {
+            { "WhitePawn", "♟" }, 
+            { "BlackPawn", "♙" }, 
+            { "WhiteRook", "♜" }, 
+            { "BlackRook", "♖" }, 
+            { "WhiteKnight", "♞" }, 
+            { "BlackKnight", "♘" }, 
+            { "WhiteBishop", "♝" }, 
+            { "BlackBishop", "♗" },
+            { "WhiteQueen", "♛" }, 
+            { "BlackQueen", "♕" }, 
+            { "WhiteKing", "♚" }, 
+            { "BlackKing", "♔" }, 
+            { null, " " }, 
+          }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
         String newString = "";
         for (Piece[] row : getGrid()) {
             newString += "\n";
             for (Piece piece : row) {
                 if (piece != null) {
-                    newString += " " + piece.toString() + " ";
+                    newString += " | " + displayMap.get(piece.toString()) + " | ";
+                } else {
+                    newString += " | " + " " + " | ";
                 }
             }
         }

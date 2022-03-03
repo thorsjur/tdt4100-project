@@ -12,8 +12,9 @@ public class Bishop extends Piece {
 
     public List<Move> getValidMoves() {
         List<Move> moveList = new ArrayList<Move>();
+        int[] coordinates = getCoordinates();
         for (Direction direction : moveDirections) {
-            moveList.addAll(getUnidirectionalMoves(direction, getCoordinates(), true));
+            moveList.addAll(getUnidirectionalMoves(direction, coordinates, true));
         }
         return moveList;
     }

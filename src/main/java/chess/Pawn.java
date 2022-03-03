@@ -1,7 +1,8 @@
 package chess;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Pawn extends Piece {
 
@@ -25,8 +26,12 @@ public class Pawn extends Piece {
         List<Move> moveList = getUnidirectionalMoves(Direction.UP, getCoordinates(), false);
         if (hasMoved == false && moveList.size() >= 2) {
             return moveList.subList(0, 2);
-        } else if (hasMoved == true && moveList.size() >= 1) {
-            return moveList.subList(0, 1);
+        } else if (moveList.size() >= 1) {
+            if (! hasMoved) {
+                return moveList.subList(0, 1);
+            } else {
+                return new ArrayList<Move>(Arrays.asList(moveList.get(0)));
+            }
         }
         return new ArrayList<Move>();
     }
