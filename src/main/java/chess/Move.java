@@ -15,7 +15,7 @@ public class Move {
                 return "#05752a";
             }
         },
-        ENPASSANT {
+        EN_PASSANT {
             public String getHexColour() {
                 return "#750550";
             }

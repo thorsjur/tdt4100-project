@@ -1,6 +1,6 @@
 .root {
     -primary: #15041d;
-    -secondary: #fa6579;
+    -secondary: /* #fa6579 */#ffde00;
     /* #F97068; */
     /* #464b42; */
     -tertiary: #F05D23;
@@ -22,11 +22,16 @@
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ffde00, #b43486);
     -fx-effect: dropshadow(gaussian, #0000003b, 25, 0.5, 0, 0);
     -fx-effect: innershadow(gaussian, #e5ff004f, 4, 0.2, 2, 2);
+    -fx-background-radius: 5px;
 }
 
 .background-pane{
     -fx-padding: 10px 15px;
     -fx-background-radius: 15px;
+ }
+
+ .grid-pane {
+    -fx-background-radius: 5px;
  }
 
 .special-button {
@@ -47,7 +52,8 @@
 }
 
 .special-button:hover {
-    -fx-background-color: #ffde00;
+    -fx-background-color: #fa6579;
+    /* #ffde00 */
 }
 
 .special-button:armed {

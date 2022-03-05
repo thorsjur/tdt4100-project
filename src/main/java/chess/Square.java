@@ -15,6 +15,10 @@ public class Square extends Pane {
         this.piece = piece;
     }
 
+    public void removePiece() {
+        piece = null;
+    }
+
     public void setBoard(Board board) {
         this.board = board;
     }

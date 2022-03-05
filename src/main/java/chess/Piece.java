@@ -29,10 +29,6 @@ public abstract class Piece {
             Colour turn = board.getTurn();
             return ! boardRotationEnabled && turn == Colour.BLACK ? inverseDirectionVector : directionVector;
         }
-
-        public int[] getInvertedDirectionVector() {
-            return new int[]{-directionVector[0], -directionVector[1]};
-        }
     }
 
     protected Colour colour;
@@ -75,10 +71,19 @@ public abstract class Piece {
         hasMoved = true;
     }
 
-    public Piece getPieceRelativeToPosition(int[] coordinateDifference) {
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    public int[] getRelativeCoordinates(int[] coordinateDifference) {
         int[] fromCoordinates = getCoordinates();
         int[] toCoordinates = { fromCoordinates[0] + coordinateDifference[0], fromCoordinates[1] + coordinateDifference[1] };
-        return board.getPiece(toCoordinates);
+        return toCoordinates;
+    }
+
+    public Piece getPieceRelativeToPosition(int[] coordinateDifference) {
+        int[] relativeCoordinates = getRelativeCoordinates(coordinateDifference);
+        return board.getPiece(relativeCoordinates);
     }
 
     public List<Move> getUnidirectionalMoves(Direction direction, int[] currentCoordinates, boolean take) {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Arrays;
 
 public class Board {
 
@@ -23,7 +24,7 @@ public class Board {
     public boolean isChanged() {
         return isChanged;
     }
-
+ 
     public void setChanged(boolean isChanged) {
         this.isChanged = isChanged;
     }
@@ -96,17 +97,34 @@ public class Board {
             rotateBoard();
         }
         this.boardRotationEnabled = boardRotationEnabled;
+        if (selectedSquare != null) {
+            getSelectedSquare().deselectSquare();
+        }
         
     }
 
     public void movePiece(Piece piece, int[] toCoordinates) {
+        if (! isValidMove(piece, toCoordinates)) {
+            return;
+        }
         int[] coordinatesOfPiece = getCoordinatesOfPiece(piece);
+        int distance = (toCoordinates[1] - piece.getCoordinates()[1]);
+        if (piece instanceof King && Math.abs(distance) == 2) {
+            boolean longCastle = toCoordinates[1] == 2 || toCoordinates[1] == 5;
+            Rook rook = ((King) piece).getCastleRook(longCastle);
+            int[] rookCoordinates = rook.getCoordinates();
+            int[] newRookCoordinates = { coordinatesOfPiece[0], coordinatesOfPiece[1] + (distance < 0 ? -1 : 1) };
+            setPiece(rook, newRookCoordinates);
+            removePiece(rookCoordinates);
+        }
+
         piece.registerMove();
         setPiece(piece, toCoordinates);
         removePiece(coordinatesOfPiece);
         removeAllHighlights();
         getSelectedSquare().deselectSquare();
     }
+
     public boolean isBoardRotationEnabled() {
         return boardRotationEnabled;
     }
@@ -122,6 +140,7 @@ public class Board {
         boolean threatened = getKing(turn).isThreatened();
         return threatened;
     }
+
 
     public boolean checkNextBoardForCheck(Piece piece, int[] toCoordinates) {
         Piece[][] tempGrid = getGrid();
@@ -197,6 +216,11 @@ public class Board {
         isChanged = true;
     }
 
+    public boolean isKingMated() {
+        King king = getKing(getTurn());
+        return king.isMated();
+    }
+
     private King getKing(Colour colour) {
         for (Piece[] row : getGrid()) {
             for (Piece piece : row) {
@@ -206,7 +230,18 @@ public class Board {
         return null;
     }
 
+    public boolean isSquareThreatened(Square square) {
+        if (square.getPiece() != null) return false;
+        King tempKing = new King(turn, this);
+        
+        square.setPiece(tempKing);
+        boolean threatened = tempKing.isThreatened();
+        square.removePiece();
+        return threatened;
+    }
+
     private void setPiece(Piece piece, int[] toCoordinates) {
+        System.out.println(piece + " set to " + toCoordinates[0] + " | " + toCoordinates[1]);
         int toRow = toCoordinates[0];
         int toCol = toCoordinates[1];
         getChessBoard()[toRow][toCol].setPiece(piece);

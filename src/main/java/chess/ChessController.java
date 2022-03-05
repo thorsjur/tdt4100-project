@@ -19,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class ChessController {
 
@@ -71,6 +72,9 @@ public class ChessController {
         int[] coordinates = clickedSquare.getCoordinates();
         if (selectedPiece != null && board.isValidMove(selectedPiece, coordinates)) {
             game.makeMove(selectedPiece, coordinates);
+            if (board.isKingMated()) {
+                initializeGameFinished();
+            }
             return;
         }
         
@@ -84,15 +88,38 @@ public class ChessController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Settings.fxml"));
 
         settingsStage.setTitle("Settings");
+        
+        settingsStage.getIcons().add(new Image(new File("src/images/WhiteKing.png").toURI().toString()));
         settingsStage.setScene(new Scene(loader.load()));
         settingsStage.setResizable(false);
         SettingsController settingsController = loader.getController();
 
         settingsController.setGame(game);
         settingsController.checkTrueCheckBoxes(game.getBoard().isBoardRotationEnabled());
-
         settingsStage.initModality(Modality.APPLICATION_MODAL);
-        settingsStage.show();
+        settingsStage.showAndWait();
+    }
+
+    private void initializeGameFinished() {
+        Stage finishStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("GameFinished.fxml"));
+
+        finishStage.setTitle(game.getTurn().toString());
+        finishStage.getIcons().add(new Image(new File("src/images/WhiteKing.png").toURI().toString()));
+        try {
+            finishStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.print("Can't load file GameFinished.fxml! ");
+            e.printStackTrace();
+        }
+        finishStage.setResizable(false);
+        GameFinishedController gameFinishedController = loader.getController();
+
+        gameFinishedController.setGame(game);
+
+        finishStage.initModality(Modality.APPLICATION_MODAL);
+        finishStage.showAndWait();
+        
     }
 
     private void initializeSquaresAndPieces() {

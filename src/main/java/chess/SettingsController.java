@@ -55,4 +55,5 @@ public class SettingsController {
     public void setGame(Game game) {
         this.game = game;
     }
+
 }

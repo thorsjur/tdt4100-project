@@ -18,6 +18,23 @@ public class King extends Piece {
                 moveList.add(moves.get(0));
             }
         }
+
+        for (boolean longCastle : new boolean[] { true, false }) {
+            if (canCastle(longCastle)) {
+                int horizontalDifference = board.getTurn() == Colour.WHITE ? 2 : -2;
+                if (! board.isBoardRotationEnabled()) {
+                    horizontalDifference = ! longCastle ? 2 : -2;
+                } else if (longCastle) {
+                    horizontalDifference = -horizontalDifference;
+                }
+                Move castle = new Move(getCoordinates(), getRelativeCoordinates(new int[] { 0, horizontalDifference }),
+                        Move.MoveType.CASTLE);
+                moveList.add(castle);
+            } else {
+                System.out.println("Can't castle + " + (longCastle ? "long" : "short"));
+            }
+        }
+
         return moveList;
     }
 
@@ -57,6 +74,35 @@ public class King extends Piece {
         return false;
     }
 
+    public boolean isMated() {
+        if (!isThreatened()) {
+            return false;
+        }
+        List<Move> moveList = getValidMoves();
+        for (Move move : moveList) {
+            if (!move.leadsToCheck(board)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Rook getCastleRook(boolean longCastle) {
+        Colour turn = board.getTurn();
+        int horizontalDifference;
+        if (turn == Colour.WHITE) {
+            horizontalDifference = longCastle ? -4 : 3;
+        } else {
+            if (board.isBoardRotationEnabled()) {
+                horizontalDifference = longCastle ? 4 : -3;
+            } else {
+                horizontalDifference = longCastle ? -4 : 3;
+            }
+        }
+        Piece rook = getPieceRelativeToPosition(new int[]{ 0, horizontalDifference });
+        return (rook instanceof Rook) ? (Rook) rook : null;
+    }
+
     @Override
     public String toString() {
         return colour.toString() + "King";
@@ -69,14 +115,12 @@ public class King extends Piece {
             if (move.getType() == Move.MoveType.TAKE) {
                 return board.getPiece(move.getToCoordinates());
             }
-            ;
             return null;
         }
         for (Move move : moveList) {
             if (move.getType() == Move.MoveType.TAKE) {
                 return board.getPiece(move.getToCoordinates());
             }
-            ;
         }
         return null;
     }
@@ -85,9 +129,39 @@ public class King extends Piece {
         for (Direction direction : directions) {
             Piece piece = getOpponentPiece(direction, singleMove);
             for (Class<?> cls : classList) {
-                if (piece != null && piece.getClass() == cls) return true;
+                if (piece != null && piece.getClass() == cls)
+                    return true;
             }
         }
         return false;
+    }
+
+    private boolean canCastle(boolean longCastle) {
+        if (hasMoved) {
+            return false;
+        }
+        boolean turnIsWhite = board.getTurn() == Colour.WHITE;
+        boolean directionCondition = longCastle;
+        if (board.isBoardRotationEnabled()) {
+            directionCondition = (! turnIsWhite && ! longCastle) || (turnIsWhite && longCastle);
+        }
+        int rookDiff = longCastle ? 4 : 3;
+        Piece piece = getPieceRelativeToPosition(new int[] { 0, directionCondition ? -rookDiff : rookDiff });
+
+        if (piece == null || !(piece instanceof Rook) || piece.hasMoved()) {
+            return false;
+        }
+        for (int i = 1; i <= rookDiff - 1; i++) {
+            int[] toCoordinates = getRelativeCoordinates(new int[]{0, directionCondition ? -i : i});
+            Square passingSquare = board.getSquare(toCoordinates);
+            Piece pieceAtSquare = passingSquare.getPiece();
+            if (longCastle && pieceAtSquare == null && i == rookDiff - 1) {
+                break;
+            }
+            if (pieceAtSquare != null || board.isSquareThreatened(passingSquare)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
