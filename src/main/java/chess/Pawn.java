@@ -15,7 +15,12 @@ public class Pawn extends Piece {
         moveList.addAll(getPawnMoves());
         moveList.addAll(getPawnTakes());
         return moveList;
-    } 
+    }
+
+    public boolean canPromote() {
+        int[] coordinates = getCoordinates();
+        return coordinates[0] == 0 || coordinates[0] == 7;
+    }
  
     @Override
     public String toString() {

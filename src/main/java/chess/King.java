@@ -30,8 +30,6 @@ public class King extends Piece {
                 Move castle = new Move(getCoordinates(), getRelativeCoordinates(new int[] { 0, horizontalDifference }),
                         Move.MoveType.CASTLE);
                 moveList.add(castle);
-            } else {
-                System.out.println("Can't castle + " + (longCastle ? "long" : "short"));
             }
         }
 
@@ -75,13 +73,21 @@ public class King extends Piece {
     }
 
     public boolean isMated() {
-        if (!isThreatened()) {
+        if (! isThreatened()) {
             return false;
         }
-        List<Move> moveList = getValidMoves();
-        for (Move move : moveList) {
-            if (!move.leadsToCheck(board)) {
-                return false;
+        
+        for (Piece[] row : board.getGrid()) {
+            for (Piece piece : row) {
+                if (piece == null) continue;
+                if (piece.getColour() == getColour()) {
+                    List<Move> moveList = piece.getValidMoves();
+                    for (Move move : moveList) {
+                        if (! move.leadsToCheck(board)) {
+                            return false;
+                        }
+                    }
+                }
             }
         }
         return true;

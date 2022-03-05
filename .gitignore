@@ -206,3 +206,4 @@ target/classes/chess/Game.class
 target/classes/chess/Move.class
 target/classes/chess/Pawn.class
 target/classes/chess/Piece.class
+target/classes/chess/Board.class

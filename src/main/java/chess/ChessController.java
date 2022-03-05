@@ -13,10 +13,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -75,6 +77,9 @@ public class ChessController {
             if (board.isKingMated()) {
                 initializeGameFinished();
             }
+            if (selectedPiece instanceof Pawn && ((Pawn) selectedPiece).canPromote()) {
+                pawnPromotion((Pawn) selectedPiece);
+            }
             return;
         }
         
@@ -98,6 +103,32 @@ public class ChessController {
         settingsController.checkTrueCheckBoxes(game.getBoard().isBoardRotationEnabled());
         settingsStage.initModality(Modality.APPLICATION_MODAL);
         settingsStage.showAndWait();
+    }
+
+    private void pawnPromotion(Pawn pawn) {
+        Stage pawnPromotionStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("PawnPromotion.fxml"));
+        Scene scene;
+        
+        try {
+            scene = new Scene(loader.load());
+            pawnPromotionStage.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Can't read PawnPromotion.fxml");
+            return;
+        }
+        pawnPromotionStage.setResizable(false);
+
+        PawnPromotionController pawnPromotionController = loader.getController();
+        pawnPromotionController.setPawn(pawn);
+        pawnPromotionController.initializePieces();
+
+        scene.setFill(Color.TRANSPARENT);
+        
+        pawnPromotionStage.initStyle(StageStyle.TRANSPARENT);
+        pawnPromotionStage.initModality(Modality.APPLICATION_MODAL);
+        pawnPromotionStage.showAndWait();
     }
 
     private void initializeGameFinished() {

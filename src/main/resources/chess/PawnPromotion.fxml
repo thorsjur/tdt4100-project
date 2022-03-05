@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+
+<FlowPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="95.0" prefWidth="346.0" styleClass="shadow-pane" stylesheets="@app.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chess.PawnPromotionController">
+   <children>
+      <HBox fx:id="images" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="78.0" prefWidth="337.0" spacing="10.0" styleClass="background-pane">
+         <children>
+            <ImageView fx:id="queen" fitHeight="75.0" fitWidth="75.0" onMouseClicked="#handleOnPieceClick" pickOnBounds="true" preserveRatio="true" styleClass="promotion-piece" />
+            <ImageView fx:id="rook" fitHeight="75.0" fitWidth="75.0" onMouseClicked="#handleOnPieceClick" pickOnBounds="true" preserveRatio="true" styleClass="promotion-piece" />
+            <ImageView fx:id="knight" fitHeight="75.0" fitWidth="75.0" onMouseClicked="#handleOnPieceClick" pickOnBounds="true" preserveRatio="true" styleClass="promotion-piece" />
+            <ImageView fx:id="bishop" fitHeight="75.0" fitWidth="75.0" onMouseClicked="#handleOnPieceClick" pickOnBounds="true" preserveRatio="true" styleClass="promotion-piece" />
+         </children>
+         <padding>
+            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+         </padding>
+      </HBox>
+   </children>
+</FlowPane>

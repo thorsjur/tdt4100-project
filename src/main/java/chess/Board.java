@@ -93,18 +93,23 @@ public class Board {
     }
 
     public void setBoardRotation(boolean boardRotationEnabled) {
-        if ( (boardRotated || boardRotationEnabled) && (! boardRotated || ! boardRotationEnabled) && this.boardRotationEnabled != boardRotationEnabled) {
+        if (this.boardRotationEnabled == boardRotationEnabled) {
+            return;
+        }
+        if ((boardRotated && !boardRotationEnabled)
+                || (!boardRotated && boardRotationEnabled && getTurn() == Colour.BLACK)) {
             rotateBoard();
         }
         this.boardRotationEnabled = boardRotationEnabled;
         if (selectedSquare != null) {
             getSelectedSquare().deselectSquare();
         }
+        System.out.println(boardRotated);
         
     }
 
     public void movePiece(Piece piece, int[] toCoordinates) {
-        if (! isValidMove(piece, toCoordinates)) {
+        if (! isValidMove(piece, toCoordinates)) { 
             return;
         }
         int[] coordinatesOfPiece = getCoordinatesOfPiece(piece);
@@ -240,8 +245,36 @@ public class Board {
         return threatened;
     }
 
+    public void promotePawn(Pawn pawn, char piece) {
+        if (! pawn.canPromote()) {
+            return;
+        }
+        Colour pawnColour = pawn.getColour();
+        Piece newPiece;
+
+        switch (piece) {
+            case 'Q':
+                newPiece = new Queen(pawnColour, this);
+                break;
+            case 'R':
+                newPiece = new Rook(pawnColour, this);
+                break;
+            case 'B':
+                newPiece = new Bishop(pawnColour, this);
+                break;
+            case 'K':
+                newPiece = new Knight(pawnColour, this);
+                break;
+            default:
+                newPiece = new Pawn(pawnColour, this);
+        }
+        setPiece((newPiece), pawn.getCoordinates());
+
+
+
+    }
+
     private void setPiece(Piece piece, int[] toCoordinates) {
-        System.out.println(piece + " set to " + toCoordinates[0] + " | " + toCoordinates[1]);
         int toRow = toCoordinates[0];
         int toCol = toCoordinates[1];
         getChessBoard()[toRow][toCol].setPiece(piece);
