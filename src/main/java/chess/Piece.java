@@ -27,7 +27,7 @@ public abstract class Piece {
         public int[] getDirectionVector(Board board) {
             boolean boardRotationEnabled = board.isBoardRotationEnabled();
             Colour turn = board.getTurn();
-            return ! boardRotationEnabled && turn == Colour.BLACK ? inverseDirectionVector : directionVector;
+            return ((! boardRotationEnabled && turn == Colour.BLACK) ? inverseDirectionVector : directionVector);
         }
     }
 

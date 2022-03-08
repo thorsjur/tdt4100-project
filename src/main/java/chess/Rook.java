@@ -10,6 +10,7 @@ public class Rook extends Piece {
         moveDirections = new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
     }
     
+    @Override
     public List<Move> getValidMoves() {
         List<Move> moveList = new ArrayList<Move>();
         for (Direction direction : moveDirections) {

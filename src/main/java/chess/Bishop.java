@@ -10,6 +10,7 @@ public class Bishop extends Piece {
         moveDirections = new Direction[]{Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_RIGHT, Direction.DOWN_LEFT};
     }
 
+    @Override
     public List<Move> getValidMoves() {
         List<Move> moveList = new ArrayList<Move>();
         int[] coordinates = getCoordinates();

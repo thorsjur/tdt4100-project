@@ -10,6 +10,7 @@ public class King extends Piece {
         moveDirections = Direction.values();
     }
 
+    @Override
     public List<Move> getValidMoves() {
         List<Move> moveList = new ArrayList<Move>();
         for (Direction direction : moveDirections) {
@@ -21,9 +22,9 @@ public class King extends Piece {
 
         for (boolean longCastle : new boolean[] { true, false }) {
             if (canCastle(longCastle)) {
-                int horizontalDifference = board.getTurn() == Colour.WHITE ? 2 : -2;
+                int horizontalDifference = ((board.getTurn() == Colour.WHITE) ? 2 : -2);
                 if (! board.isBoardRotationEnabled()) {
-                    horizontalDifference = ! longCastle ? 2 : -2;
+                    horizontalDifference = (! longCastle ? 2 : -2);
                 } else if (longCastle) {
                     horizontalDifference = -horizontalDifference;
                 }
@@ -37,32 +38,32 @@ public class King extends Piece {
     }
 
     public boolean isThreatened() {
-        // Threats from pawns
+        // Trusler fra bønder
         Direction[] directions = { Direction.UP_LEFT, Direction.UP_RIGHT };
         Class<?>[] classList = { Pawn.class };
         if (isThreatenedByPiece(directions, classList, true))
             return true;
 
-        // Threats from king
+        // Trusler fra motstanders konge
         directions = Direction.values();
         classList = new Class<?>[] { King.class };
         if (isThreatenedByPiece(directions, classList, true))
             return true;
 
-        // Threats from rooks and queen
+        // Trusler fra motstanders dronning og tårn
         directions = new Direction[] { Direction.UP, Direction.DOWN, Direction.RIGHT, Direction.LEFT };
         classList = new Class<?>[] { Rook.class, Queen.class };
         if (isThreatenedByPiece(directions, classList, false))
             return true;
 
-        // Threats from bishops and queen
+        // Trusler fra motstanders løper og dronning
         directions = new Direction[] { Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_LEFT,
                 Direction.DOWN_RIGHT };
         classList = new Class<?>[] { Bishop.class, Queen.class };
         if (isThreatenedByPiece(directions, classList, false))
             return true;
 
-        // Threats from knights
+        // Trusler fra motstanders springere
         int[][] knightJumps = Knight.getJumpArray();
         for (int[] jump : knightJumps) {
             Piece piece = getPieceRelativeToPosition(jump);
@@ -72,8 +73,8 @@ public class King extends Piece {
         return false;
     }
 
-    public boolean isMated() {
-        if (! isThreatened()) {
+    public boolean isMated(boolean stalemate) {
+        if (! isThreatened() && ! stalemate) {
             return false;
         }
         
@@ -97,16 +98,16 @@ public class King extends Piece {
         Colour turn = board.getTurn();
         int horizontalDifference;
         if (turn == Colour.WHITE) {
-            horizontalDifference = longCastle ? -4 : 3;
+            horizontalDifference = (longCastle ? -4 : 3);
         } else {
             if (board.isBoardRotationEnabled()) {
-                horizontalDifference = longCastle ? 4 : -3;
+                horizontalDifference = (longCastle ? 4 : -3);
             } else {
-                horizontalDifference = longCastle ? -4 : 3;
+                horizontalDifference = (longCastle ? -4 : 3);
             }
         }
         Piece rook = getPieceRelativeToPosition(new int[]{ 0, horizontalDifference });
-        return (rook instanceof Rook) ? (Rook) rook : null;
+        return ((rook instanceof Rook) ? (Rook) rook : null);
     }
 
     @Override
@@ -151,14 +152,14 @@ public class King extends Piece {
         if (board.isBoardRotationEnabled()) {
             directionCondition = (! turnIsWhite && ! longCastle) || (turnIsWhite && longCastle);
         }
-        int rookDiff = longCastle ? 4 : 3;
-        Piece piece = getPieceRelativeToPosition(new int[] { 0, directionCondition ? -rookDiff : rookDiff });
+        int rookDiff = (longCastle ? 4 : 3);
+        Piece piece = getPieceRelativeToPosition(new int[] { 0, (directionCondition ? -rookDiff : rookDiff) });
 
         if (piece == null || !(piece instanceof Rook) || piece.hasMoved()) {
             return false;
         }
         for (int i = 1; i <= rookDiff - 1; i++) {
-            int[] toCoordinates = getRelativeCoordinates(new int[]{0, directionCondition ? -i : i});
+            int[] toCoordinates = getRelativeCoordinates(new int[]{0, (directionCondition ? -i : i)});
             Square passingSquare = board.getSquare(toCoordinates);
             Piece pieceAtSquare = passingSquare.getPiece();
             if (longCastle && pieceAtSquare == null && i == rookDiff - 1) {

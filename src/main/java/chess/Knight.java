@@ -20,6 +20,7 @@ public class Knight extends Piece {
         super(colour, board);
     }
 
+    @Override
     public List<Move> getValidMoves() {
         List<Move> moveList = new ArrayList<Move>();
         int[] fromCoordinates = getCoordinates();

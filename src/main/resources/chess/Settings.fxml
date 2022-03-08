@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -8,19 +9,35 @@
 
 <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="268.0" prefWidth="402.0" stylesheets="@app.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chess.SettingsController">
    <children>
-      <VBox fx:id="checkBoxes" layoutX="39.0" layoutY="36.0" spacing="30.0">
+      <VBox alignment="CENTER" prefHeight="268.0" prefWidth="402.0" spacing="80.0">
          <children>
-            <CheckBox fx:id="rotationCheckBox" mnemonicParsing="false" onMouseClicked="#handleOnCheckBoxClick" text="Rotate board for each turn" />
-            <CheckBox mnemonicParsing="false" onMouseClicked="#handleOnCheckBoxClick" text="Upcoming feature" />
-            <CheckBox mnemonicParsing="false" onMouseClicked="#handleOnCheckBoxClick" text="Upcoming feature" />
+            <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+               <children>
+                  <VBox fx:id="checkBoxes" spacing="30.0">
+                     <children>
+                        <CheckBox fx:id="rotationCheckBox" mnemonicParsing="false" onMouseClicked="#handleOnCheckBoxClick" text="Rotate board each turn" />
+                        <CheckBox mnemonicParsing="false" onMouseClicked="#handleOnCheckBoxClick" text="Upcoming feature" />
+                        <CheckBox mnemonicParsing="false" onMouseClicked="#handleOnCheckBoxClick" text="Upcoming feature" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER_RIGHT" prefHeight="111.0" prefWidth="182.0">
+                     <children>
+                        <Button mnemonicParsing="false" onMouseClicked="#handleOnNewGameButtonClick" text="NEW GAME" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" spacing="40.0">
+               <children>
+                  <Button fx:id="okButton" mnemonicParsing="false" onMouseClicked="#handleOnOkButtonClick" prefHeight="25.0" prefWidth="70.0" text="Ok" />
+                  <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onMouseClicked="#handleOnCancelButtonClick" prefHeight="25.0" prefWidth="70.0" text="Cancel" />
+                  <Button fx:id="applyButton" mnemonicParsing="false" onMouseClicked="#handleOnApplyButtonClick" prefHeight="25.0" prefWidth="70.0" text="Apply" />
+               </children>
+            </HBox>
          </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="40.0" />
+         </padding>
       </VBox>
-      <HBox layoutX="56.0" layoutY="229.0" spacing="40.0">
-         <children>
-            <Button fx:id="okButton" mnemonicParsing="false" onMouseClicked="#handleOnOkButtonClick" prefHeight="25.0" prefWidth="70.0" text="Ok" />
-            <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onMouseClicked="#handleOnCancelButtonClick" prefHeight="25.0" prefWidth="70.0" text="Cancel" />
-            <Button fx:id="applyButton" mnemonicParsing="false" onMouseClicked="#handleOnApplyButtonClick" prefHeight="25.0" prefWidth="70.0" text="Apply" />
-         </children>
-      </HBox>
    </children>
 </AnchorPane>

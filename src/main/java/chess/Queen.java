@@ -10,6 +10,7 @@ public class Queen extends Piece {
         moveDirections = Direction.values();
     }
 
+    @Override
     public List<Move> getValidMoves() {
         List<Move> list = new ArrayList<Move>();
         for (Direction direction : moveDirections) {

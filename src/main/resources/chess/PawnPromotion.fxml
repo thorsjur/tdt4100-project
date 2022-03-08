@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 
-<FlowPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="95.0" prefWidth="346.0" styleClass="shadow-pane" stylesheets="@app.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chess.PawnPromotionController">
+<FlowPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="144.0" prefWidth="383.0" styleClass="shadow-pane" stylesheets="@app.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chess.PawnPromotionController">
    <children>
       <HBox fx:id="images" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="78.0" prefWidth="337.0" spacing="10.0" styleClass="background-pane">
          <children>

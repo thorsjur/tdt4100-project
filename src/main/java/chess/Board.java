@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.Arrays;
 
 public class Board {
 
@@ -21,18 +20,18 @@ public class Board {
         this.chessBoard = chessBoard;
     }
 
+    public Board(List<Square> squareList, Colour turn) {
+        this.initializeBoard(squareList);
+        this.turn = turn;
+        this.boardRotationEnabled = true;
+    }
+
     public boolean isChanged() {
         return isChanged;
     }
  
     public void setChanged(boolean isChanged) {
         this.isChanged = isChanged;
-    }
-
-    public Board(List<Square> squareList, Colour turn) {
-        this.initializeBoard(squareList);
-        this.turn = turn;
-        this.boardRotationEnabled = true;
     }
 
     public Square[][] getChessBoard() {
@@ -135,7 +134,7 @@ public class Board {
     }
 
     public void nextTurn() {
-        turn = turn == Colour.WHITE ? Colour.BLACK : Colour.WHITE;
+        turn = ((turn == Colour.WHITE) ? Colour.BLACK : Colour.WHITE);
         if (boardRotationEnabled) {
             rotateBoard();
         }
@@ -221,10 +220,11 @@ public class Board {
         isChanged = true;
     }
 
-    public boolean isKingMated() {
+    public boolean isKingMated(boolean stalemate) {
         King king = getKing(getTurn());
-        return king.isMated();
+        return king.isMated(stalemate);
     }
+
 
     private King getKing(Colour colour) {
         for (Piece[] row : getGrid()) {
@@ -297,6 +297,13 @@ public class Board {
             int[] coordinate = square.getCoordinates();
             chessBoard[coordinate[0]][coordinate[1]] = square;
             square.setBoard(this);
+        }
+
+        // Hvis dette er er nytt spill, må den renske de eksisterende brikkene
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                chessBoard[i][j].setPiece(null);
+            }
         }
 
         // Setter bønder

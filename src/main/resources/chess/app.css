@@ -42,12 +42,17 @@
     -height: 40;
     -fill: -secondary;
 
+    -fx-cursor: hand;
     -fx-background-color: -fill;
     -fx-min-height: -height;
     -fx-min-width: -width;
     -fx-max-height: -height;
     -fx-max-width: -width;
     -fx-effect: dropshadow(gaussian, #ffdd004d, 5, 0.1, 0, 0);
+}
+
+.promotion-piece {
+    -fx-cursor: hand;
 }
 
 .promotion-piece:hover {
