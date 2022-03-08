@@ -13,6 +13,8 @@ public class Game {
     private String playerTwo;
     private List<Move> moves = new ArrayList<>();
     private Colour turn = Colour.WHITE;
+    private Colour winner;
+    private boolean gameFinished;
 
     public Game(List<Square> squareList) {
         board = new Board(squareList, turn);
@@ -30,8 +32,16 @@ public class Game {
         return turn;
     }
 
+    public Colour getWinner() {
+        return winner;
+    }
+
+    public Square getSelectedSquare() {
+        return board.getSelectedSquare();
+    }
+
     public void nextTurn() {
-        turn = turn == Colour.WHITE ? Colour.BLACK : Colour.WHITE;
+        turn = ((turn == Colour.WHITE) ? Colour.BLACK : Colour.WHITE);
         board.nextTurn();
     }
 
@@ -46,6 +56,30 @@ public class Game {
 
     public void enableBoardRotation() {
         board.setBoardRotation(true);
+    }
+
+    public boolean checkForMate() {
+        boolean checkmated = board.isKingMated(false);
+        boolean stalemated = board.isKingMated(true);
+
+        if (checkmated || stalemated) {
+            gameFinished = true;
+        }
+        if (checkmated) {
+            winner = ((turn == Colour.WHITE) ? Colour.BLACK : Colour.WHITE);
+            return true;
+        } else {
+            winner = null;
+            return stalemated;
+        }
+    }
+
+    public boolean isValidMove(Piece piece, int[] toCoordinates) {
+        return board.isValidMove(piece, toCoordinates);
+    }
+
+    public boolean isFinished() {
+        return gameFinished;
     }
 
 }

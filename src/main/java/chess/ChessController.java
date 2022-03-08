@@ -3,6 +3,7 @@ package chess;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,7 +14,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -25,7 +25,7 @@ import javafx.stage.StageStyle;
 
 public class ChessController {
 
-    private Game game;
+    private GameManager gameManager;
     private List<Square> squareList = new ArrayList<>();
 
     @FXML
@@ -34,30 +34,24 @@ public class ChessController {
     @FXML
     private Button settingsButton; 
 
-    public Game getGame() {
-        return game;
-    }
-
     private void updateBoard() {
-        Square[][] squareGrid = game.getBoard().getChessBoard();
-        for (Square[] row : squareGrid) {
-            for (Square square : row) {
-                Piece piece = square.getPiece();
-                ImageView imageView = (ImageView) square.getChildren().get(0);
-                if (piece != null) {
-                    String imagePath = "src/images/" + piece.toString() + ".png";
-                    imageView.setImage(new Image(new File(imagePath).toURI().toString()));
-                } else {
-                    imageView.setImage(null);
-                }
+        HashMap<Square, String> squarePathMap = gameManager.getSquareToPathMap();
+
+        for (Square square : squarePathMap.keySet()) {
+            ImageView pieceImageView = (ImageView) square.getChildren().get(0);
+            if (squarePathMap.get(square) == null) {
+                pieceImageView.setImage(null);
+            } else {
+                String imagePath = squarePathMap.get(square);
+                pieceImageView.setImage(new Image(new File(imagePath).toURI().toString()));
             }
         }
     }
 
     @FXML
     private void handleOnPieceClick(MouseEvent event) {
-        Board board = game.getBoard();
-        Square selectedSquare = board.getSelectedSquare();
+        Game game = gameManager.getGame();
+        Square selectedSquare = game.getSelectedSquare();
         Square clickedSquare = (Square) event.getPickResult().getIntersectedNode().getParent();
 
         if (selectedSquare == null) {
@@ -72,9 +66,9 @@ public class ChessController {
 
         Piece selectedPiece = selectedSquare.getPiece();
         int[] coordinates = clickedSquare.getCoordinates();
-        if (selectedPiece != null && board.isValidMove(selectedPiece, coordinates)) {
+        if (selectedPiece != null && game.isValidMove(selectedPiece, coordinates)) {
             game.makeMove(selectedPiece, coordinates);
-            if (board.isKingMated()) {
+            if (game.checkForMate()) {
                 initializeGameFinished();
             }
             if (selectedPiece instanceof Pawn && ((Pawn) selectedPiece).canPromote()) {
@@ -99,8 +93,8 @@ public class ChessController {
         settingsStage.setResizable(false);
         SettingsController settingsController = loader.getController();
 
-        settingsController.setGame(game);
-        settingsController.checkTrueCheckBoxes(game.getBoard().isBoardRotationEnabled());
+        settingsController.setGameManager(gameManager);
+        settingsController.checkTrueCheckBoxes(gameManager.isBoardRotationEnabled());
         settingsStage.initModality(Modality.APPLICATION_MODAL);
         settingsStage.showAndWait();
     }
@@ -125,7 +119,7 @@ public class ChessController {
         pawnPromotionController.initializePieces();
 
         scene.setFill(Color.TRANSPARENT);
-        
+
         pawnPromotionStage.initStyle(StageStyle.TRANSPARENT);
         pawnPromotionStage.initModality(Modality.APPLICATION_MODAL);
         pawnPromotionStage.showAndWait();
@@ -135,7 +129,7 @@ public class ChessController {
         Stage finishStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("GameFinished.fxml"));
 
-        finishStage.setTitle(game.getTurn().toString());
+        finishStage.setTitle(gameManager.getTurn().toString());
         finishStage.getIcons().add(new Image(new File("src/images/WhiteKing.png").toURI().toString()));
         try {
             finishStage.setScene(new Scene(loader.load()));
@@ -146,7 +140,8 @@ public class ChessController {
         finishStage.setResizable(false);
         GameFinishedController gameFinishedController = loader.getController();
 
-        gameFinishedController.setGame(game);
+        gameFinishedController.setGameManager(gameManager);
+        gameFinishedController.setLabel();
 
         finishStage.initModality(Modality.APPLICATION_MODAL);
         finishStage.showAndWait();
@@ -165,13 +160,17 @@ public class ChessController {
     @FXML
     public void initialize() {
         initializeSquaresAndPieces();
-        game = new Game(squareList);
+        gameManager = new GameManager(squareList);
+
+        // TODO: implementere navn
+        gameManager.startNewGame("playerOneName", "playerTwoName", false);
+
 
         // Neste del delvis hentet fra https://edencoding.com/periodic-background-tasks/
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                Board board = game.getBoard();
+                Board board = gameManager.getBoard();
                 if (board.isChanged()) {
                     Platform.runLater(() -> updateBoard());
                     board.setChanged(false);
