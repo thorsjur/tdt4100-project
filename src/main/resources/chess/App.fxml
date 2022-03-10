@@ -36,7 +36,7 @@
                         <String fx:value="load-button" />
                      </styleClass>
                   </Button>
-                  <Button fx:id="refreshButton" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false">
+                  <Button fx:id="refreshButton" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#handleOnReloadButtonClick">
                      <styleClass>
                         <String fx:value="special-button" />
                         <String fx:value="refresh-button" />
@@ -45,13 +45,13 @@
                         <Insets top="100.0" />
                      </VBox.margin>
                   </Button>
-                  <Button fx:id="backButton" mnemonicParsing="false">
+                  <Button fx:id="previousBoardButton" mnemonicParsing="false" onMouseClicked="#handleOnPreviousBoardButtonClick">
                      <styleClass>
                         <String fx:value="special-button" />
                         <String fx:value="back-button" />
                      </styleClass>
                   </Button>
-                  <Button fx:id="forwardButton" mnemonicParsing="false">
+                  <Button mnemonicParsing="false" onMouseClicked="#handleOnNextBoardButtonClick">
                      <styleClass>
                         <String fx:value="special-button" />
                         <String fx:value="forward-button" />

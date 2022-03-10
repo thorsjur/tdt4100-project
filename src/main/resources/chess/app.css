@@ -38,8 +38,8 @@
  }
 
 .special-button {
-    -width: 40;
-    -height: 38;
+    -width: 35;
+    -height: 33;
     -fill: -secondary;
 
     -fx-cursor: hand;
@@ -111,8 +111,8 @@
 }
 
 .arrow-button  {
-    -width: 45;
-    -height: 36;
+    -width: 46;
+    -height: 30;
 
     -fx-min-height: -height;
     -fx-min-width: -width;
@@ -121,8 +121,8 @@
 }
 
 .refresh-button {
-    -width: 48;
-    -height: 36;
+    -width: 44;
+    -height: 31;
 
     -fx-min-height: -height;
     -fx-min-width: -width;

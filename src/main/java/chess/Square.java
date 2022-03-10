@@ -39,13 +39,13 @@ public class Square extends Pane {
             setHighlight();
             piece.highlightValidMoves();
         } else {
-            deselectSquare();
+            deselectSelectedSquare(board);
             board.removeAllHighlights();
         } 
         
     }
 
-    public void deselectSquare() {
+    public static void deselectSelectedSquare(Board board) {
         Square selectedSquare = board.getSelectedSquare();
         if (selectedSquare != null) {
             selectedSquare.removeHighlight();

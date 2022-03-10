@@ -11,7 +11,6 @@ public class Game {
     private final Calendar date = new GregorianCalendar();
     private String playerOne;
     private String playerTwo;
-    private List<Move> moves = new ArrayList<>();
     private Colour turn = Colour.WHITE;
     private Colour winner;
     private boolean gameFinished;

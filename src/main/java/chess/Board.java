@@ -8,14 +8,14 @@ import java.util.stream.Stream;
 public class Board {
 
     private Square[][] chessBoard = new Square[8][8];
-    private Piece[][] previousGrid;
-    private Piece[][] nextGrid;
+    private PieceConfiguration pieceConfiguration;
     private Square selectedSquare;
     private Colour turn;
-    private boolean boardRotationEnabled;
-    private boolean boardRotated = false;
+    private boolean isBoardRotationEnabled;
+    private boolean isBoardRotated = false;
     private boolean isChanged = true;
 
+    // TODO: implementeres under lagring og liknende
     public Board(List<Square> squareList, Square[][] chessBoard) {
         this.chessBoard = chessBoard;
     }
@@ -23,7 +23,9 @@ public class Board {
     public Board(List<Square> squareList, Colour turn) {
         this.initializeBoard(squareList);
         this.turn = turn;
-        this.boardRotationEnabled = true;
+        this.isBoardRotationEnabled = true;
+
+        pieceConfiguration = new PieceConfiguration(getGrid());
     }
 
     public boolean isChanged() {
@@ -49,11 +51,15 @@ public class Board {
     }
 
     public void setGrid(Piece[][] grid) {
+        if (grid == null) {
+            return;
+        }
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 chessBoard[i][j].setPiece(grid[i][j]);
             }
         }
+        isChanged = true;
     }
 
     public Piece getPiece(int[] coordinates) {
@@ -91,20 +97,44 @@ public class Board {
         return turn;
     }
 
+    public PieceConfiguration getPieceConfiguration() {
+        return pieceConfiguration;
+    }
+
     public void setBoardRotation(boolean boardRotationEnabled) {
-        if (this.boardRotationEnabled == boardRotationEnabled) {
+        if (this.isBoardRotationEnabled == boardRotationEnabled) {
             return;
         }
-        if ((boardRotated && !boardRotationEnabled)
-                || (!boardRotated && boardRotationEnabled && getTurn() == Colour.BLACK)) {
+        if ((isBoardRotated && !boardRotationEnabled)
+                || (!isBoardRotated && boardRotationEnabled && getTurn() == Colour.BLACK)) {
             rotateBoard();
         }
-        this.boardRotationEnabled = boardRotationEnabled;
+        this.isBoardRotationEnabled = boardRotationEnabled;
         if (selectedSquare != null) {
-            getSelectedSquare().deselectSquare();
+            Square.deselectSelectedSquare(this);
         }
-        System.out.println(boardRotated);
-        
+    }
+
+    public void goToCurrentPieceConfiguration() {
+        while (pieceConfiguration.hasNextGame()) {
+            pieceConfiguration = pieceConfiguration.getNextGame();
+        }
+        setGrid(pieceConfiguration.getPieceGrid());
+        turn = pieceConfiguration.getTurn();
+    }
+
+    public void goToPreviousPieceConfiguration() {
+        if (pieceConfiguration.hasPreviousGame()) {
+            pieceConfiguration = pieceConfiguration.getPreviousGame();
+            setGrid(pieceConfiguration.getPieceGrid());
+        }
+    }
+
+    public void goToNextPieceConfiguration() {
+        if (pieceConfiguration.hasNextGame()) {
+            pieceConfiguration = pieceConfiguration.getNextGame();
+            setGrid(pieceConfiguration.getPieceGrid());
+        }
     }
 
     public void movePiece(Piece piece, int[] toCoordinates) {
@@ -121,21 +151,24 @@ public class Board {
             setPiece(rook, newRookCoordinates);
             removePiece(rookCoordinates);
         }
-
         piece.registerMove();
+
         setPiece(piece, toCoordinates);
         removePiece(coordinatesOfPiece);
         removeAllHighlights();
-        getSelectedSquare().deselectSquare();
+        Square.deselectSelectedSquare(this);
+
+        pieceConfiguration = new PieceConfiguration(pieceConfiguration, getGrid(),
+                ((turn == Colour.WHITE) ? Colour.BLACK : Colour.WHITE), isBoardRotated);
     }
 
     public boolean isBoardRotationEnabled() {
-        return boardRotationEnabled;
+        return isBoardRotationEnabled;
     }
 
     public void nextTurn() {
         turn = ((turn == Colour.WHITE) ? Colour.BLACK : Colour.WHITE);
-        if (boardRotationEnabled) {
+        if (isBoardRotationEnabled) {
             rotateBoard();
         }
     }
@@ -188,7 +221,7 @@ public class Board {
         if (selectedSquare == null) {
             return;
         }
-        selectedSquare.deselectSquare();
+        Square.deselectSelectedSquare(this);
     }
 
     public void removeAllHighlights() {
@@ -203,7 +236,7 @@ public class Board {
     }
 
     public void rotateBoard() {
-        boardRotated = ! boardRotated;
+        isBoardRotated = ! isBoardRotated;
         Piece[][] grid = getGrid();
         Piece[][] gridCopy = new Piece[8][8];
 
@@ -269,9 +302,7 @@ public class Board {
                 newPiece = new Pawn(pawnColour, this);
         }
         setPiece((newPiece), pawn.getCoordinates());
-
-
-
+        pieceConfiguration.setPieceGrid(getGrid());
     }
 
     private void setPiece(Piece piece, int[] toCoordinates) {

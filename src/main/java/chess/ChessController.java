@@ -9,6 +9,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -16,8 +18,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -29,10 +34,19 @@ public class ChessController {
     private List<Square> squareList = new ArrayList<>();
 
     @FXML
+    private VBox root;
+
+    @FXML
     private GridPane gridPane;
 
     @FXML
     private Button settingsButton; 
+
+    @FXML
+    private Button previousBoardButton;
+
+    @FXML
+    private Button nextBoardButton;
 
     private void updateBoard() {
         HashMap<Square, String> squarePathMap = gameManager.getSquareToPathMap();
@@ -54,13 +68,15 @@ public class ChessController {
         Square selectedSquare = game.getSelectedSquare();
         Square clickedSquare = (Square) event.getPickResult().getIntersectedNode().getParent();
 
+        if (! gameManager.isAtCurrentBoard()) {
+            gameManager.goToCurrentBoard();
+        }
         if (selectedSquare == null) {
             clickedSquare.selectSquare();
             return;
         }
-
         if (selectedSquare == clickedSquare) {
-            clickedSquare.deselectSquare();
+            Square.deselectSelectedSquare(game.getBoard());
             return;
         }
 
@@ -77,7 +93,7 @@ public class ChessController {
             return;
         }
         
-        selectedSquare.deselectSquare();
+        Square.deselectSelectedSquare(game.getBoard());
         clickedSquare.selectSquare();
     }
 
@@ -123,6 +139,21 @@ public class ChessController {
         pawnPromotionStage.initStyle(StageStyle.TRANSPARENT);
         pawnPromotionStage.initModality(Modality.APPLICATION_MODAL);
         pawnPromotionStage.showAndWait();
+    }
+
+    @FXML
+    private void handleOnPreviousBoardButtonClick() {
+        gameManager.goToPreviousBoard();
+    }
+
+    @FXML
+    private void handleOnNextBoardButtonClick() {
+        gameManager.goToNextBoard();
+    }
+
+    @FXML
+    private void handleOnReloadButtonClick() {
+        gameManager.goToCurrentBoard();
     }
 
     private void initializeGameFinished() {
@@ -179,5 +210,18 @@ public class ChessController {
         };
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(task, 0, 33L);
+
+        root.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.LEFT) {
+                    gameManager.goToPreviousBoard();
+                } else if (event.getCode() == KeyCode.RIGHT) {
+                    gameManager.goToNextBoard();
+                }
+                event.consume();
+            }
+        });
+
     }
 }

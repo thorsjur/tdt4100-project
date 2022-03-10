@@ -5,7 +5,7 @@ import java.util.List;
 
 public class GameManager {
 
-    Game currentGame;
+    Game game;
     List<Square> squareList;
     boolean boardRotationEnabled;
 
@@ -15,16 +15,16 @@ public class GameManager {
 
     public void startNewGame(String playerOneName, String playerTwoName, boolean boardRotationEnabled) {
         // TODO: Implementere navn
-        currentGame = new Game(squareList);
-        currentGame.getBoard().setBoardRotation(boardRotationEnabled);
+        game = new Game(squareList);
+        game.getBoard().setBoardRotation(boardRotationEnabled);
     }
 
     public Board getBoard() {
-        return currentGame.getBoard();
+        return game.getBoard();
     }
 
     public Game getGame() {
-        return currentGame;
+        return game;
     }
 
     public Colour getTurn() {
@@ -36,15 +36,40 @@ public class GameManager {
     }
 
     public Colour getWinner() {
-        if (! currentGame.isFinished()) {
+        if (! game.isFinished()) {
             throw new IllegalStateException("Current game is not finished!");
         }
 
-        return currentGame.getWinner();
+        return game.getWinner();
+    }
+
+    public boolean isAtCurrentBoard() {
+        return game.getBoard().getPieceConfiguration().getNextGame() == null;
+    }
+
+    public void goToCurrentBoard() {
+        getBoard().goToCurrentPieceConfiguration();
+        if (game.getSelectedSquare() != null) {
+            Square.deselectSelectedSquare(game.getBoard());
+        }
+    }
+
+    public void goToPreviousBoard() {
+        getBoard().goToPreviousPieceConfiguration();
+        if (game.getSelectedSquare() != null) {
+            Square.deselectSelectedSquare(game.getBoard());
+        }
+    }
+
+    public void goToNextBoard() {
+        getBoard().goToNextPieceConfiguration();
+        if (game.getSelectedSquare() != null) {
+            Square.deselectSelectedSquare(game.getBoard());
+        }
     }
 
     public boolean isBoardRotationEnabled() {
-        return currentGame.getBoard().isBoardRotationEnabled();
+        return game.getBoard().isBoardRotationEnabled();
     }
 
     public HashMap<Square, String> getSquareToPathMap() {
@@ -60,8 +85,8 @@ public class GameManager {
             squarePathMap.put(square, imagePath);
         }
         return squarePathMap;
-
-        
     }
+
+
 
 }
