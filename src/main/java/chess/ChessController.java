@@ -9,6 +9,12 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import chess.model.Board;
+import chess.model.Game;
+import chess.model.GameManager;
+import chess.model.Pawn;
+import chess.model.Piece;
+import chess.model.Square;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -102,7 +108,7 @@ public class ChessController {
 
         settingsStage.setTitle("Settings");
         
-        settingsStage.getIcons().add(new Image(new File("src/images/WhiteKing.png").toURI().toString()));
+        settingsStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
         settingsStage.setScene(new Scene(loader.load()));
         settingsStage.setResizable(false);
         SettingsController settingsController = loader.getController();
@@ -159,7 +165,7 @@ public class ChessController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("GameFinished.fxml"));
 
         finishStage.setTitle(gameManager.getTurn().toString());
-        finishStage.getIcons().add(new Image(new File("src/images/WhiteKing.png").toURI().toString()));
+        finishStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
         try {
             finishStage.setScene(new Scene(loader.load()));
         } catch (IOException e) {

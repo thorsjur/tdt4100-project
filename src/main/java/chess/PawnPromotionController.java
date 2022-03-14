@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import chess.model.Board;
+import chess.model.Pawn;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -43,7 +45,7 @@ public class PawnPromotionController {
         String[] imageEndPaths = { "Queen", "Rook", "Knight", "Bishop" };
         for (int i = 0; i < 4; i++) {
             String colour = pawn.getColour().toString();
-            String imagePath = "src/images/" + colour + imageEndPaths[i] + ".png";
+            String imagePath = "src/main/resources/images/" + colour + imageEndPaths[i] + ".png";
             ImageView imageView = imageList.get(i);
             imageView.setImage(new Image(new File(imagePath).toURI().toString()));
         }

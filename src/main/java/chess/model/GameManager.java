@@ -1,4 +1,4 @@
-package chess;
+package chess.model;
 
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +81,7 @@ public class GameManager {
                 squarePathMap.put(square, null);
                 continue;
             }
-            String imagePath = "src/images/" + pieceAtSquare.toString() + ".png";
+            String imagePath = "src/main/resources/images/" + pieceAtSquare.toString() + ".png";
             squarePathMap.put(square, imagePath);
         }
         return squarePathMap;

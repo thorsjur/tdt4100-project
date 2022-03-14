@@ -1,4 +1,4 @@
-package chess;
+package chess.model;
 
 import javafx.scene.layout.Pane;
 
@@ -41,8 +41,8 @@ public class Square extends Pane {
         } else {
             deselectSelectedSquare(board);
             board.removeAllHighlights();
-        } 
-        
+        }
+
     }
 
     public static void deselectSelectedSquare(Board board) {
@@ -70,8 +70,10 @@ public class Square extends Pane {
 
     public int[] getCoordinates() {
         String squareId = getId();
-        int[] coordinates = { squareId.charAt(squareId.length() - 2) - '0',
-                squareId.charAt(squareId.length() - 1) - '0' };
+        int[] coordinates = {
+                squareId.charAt(squareId.length() - 2) - '0',
+                squareId.charAt(squareId.length() - 1) - '0' 
+            };
         return coordinates;
     }
 

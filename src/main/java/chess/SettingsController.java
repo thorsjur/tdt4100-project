@@ -2,6 +2,8 @@ package chess;
 
 import java.util.Optional;
 
+import chess.model.Game;
+import chess.model.GameManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;

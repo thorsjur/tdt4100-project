@@ -24,7 +24,7 @@ public class ChessApp extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("Chess");
-        primaryStage.getIcons().add(new Image(new File("src/images/WhiteKing.png").toURI().toString()));
+        primaryStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
         Scene scene = new Scene(FXMLLoader.load(getClass().getResource("App.fxml")));
         scene.setFill(Color.TRANSPARENT);
         primaryStage.setScene(scene);
