@@ -1,4 +1,4 @@
-package chess;
+package chess.controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,7 +104,7 @@ public class ChessController {
     @FXML
     private void handleOnSettingsButtonClick(MouseEvent event) throws IOException {
         Stage settingsStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Settings.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/Settings.fxml"));
 
         settingsStage.setTitle("Settings");
         
@@ -121,7 +121,7 @@ public class ChessController {
 
     private void pawnPromotion(Pawn pawn) {
         Stage pawnPromotionStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("PawnPromotion.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/PawnPromotion.fxml"));
         Scene scene;
         
         try {
@@ -162,7 +162,7 @@ public class ChessController {
 
     private void initializeGameFinished() {
         Stage finishStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("GameFinished.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/GameFinished.fxml"));
 
         finishStage.setTitle(gameManager.getTurn().toString());
         finishStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));

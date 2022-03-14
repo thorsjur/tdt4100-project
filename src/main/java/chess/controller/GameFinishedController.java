@@ -1,4 +1,4 @@
-package chess;
+package chess.controller;
 
 import chess.model.Colour;
 import chess.model.GameManager;

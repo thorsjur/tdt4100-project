@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="root" alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="928.0" prefWidth="979.0" styleClass="anchor-pane" stylesheets="@app.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chess.ChessController">
+<VBox fx:id="root" alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="928.0" prefWidth="979.0" styleClass="anchor-pane" stylesheets="@app.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chess.controller.ChessController">
    <children>
       <FlowPane fx:id="flowPane" alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL" prefHeight="900.0" prefWidth="1011.0">
          <children>
