@@ -44,7 +44,7 @@ public class GameManager {
     }
 
     public boolean isAtCurrentBoard() {
-        return game.getBoard().getPieceConfiguration().getNextGame() == null;
+        return game.getBoard().getPieceConfiguration().isAtCurrentBoard();
     }
 
     public void goToCurrentBoard() {

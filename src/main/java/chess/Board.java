@@ -102,6 +102,8 @@ public class Board {
     }
 
     public void setBoardRotation(boolean boardRotationEnabled) {
+        goToCurrentPieceConfiguration();
+
         if (this.isBoardRotationEnabled == boardRotationEnabled) {
             return;
         }
@@ -119,22 +121,34 @@ public class Board {
         while (pieceConfiguration.hasNextGame()) {
             pieceConfiguration = pieceConfiguration.getNextGame();
         }
+        isBoardRotated = pieceConfiguration.isBoardRotated();
         setGrid(pieceConfiguration.getPieceGrid());
         turn = pieceConfiguration.getTurn();
+
+        restoreRotation();
     }
 
     public void goToPreviousPieceConfiguration() {
         if (pieceConfiguration.hasPreviousGame()) {
             pieceConfiguration = pieceConfiguration.getPreviousGame();
+            isBoardRotated = pieceConfiguration.isBoardRotated();
             setGrid(pieceConfiguration.getPieceGrid());
+
+            restoreRotation();
         }
+
+        System.out.println(isBoardRotated);
     }
 
     public void goToNextPieceConfiguration() {
         if (pieceConfiguration.hasNextGame()) {
             pieceConfiguration = pieceConfiguration.getNextGame();
+            isBoardRotated = pieceConfiguration.isBoardRotated();
             setGrid(pieceConfiguration.getPieceGrid());
+
+            restoreRotation();
         }
+        System.out.println(isBoardRotated);
     }
 
     public void movePiece(Piece piece, int[] toCoordinates) {
@@ -148,6 +162,7 @@ public class Board {
             Rook rook = ((King) piece).getCastleRook(longCastle);
             int[] rookCoordinates = rook.getCoordinates();
             int[] newRookCoordinates = { coordinatesOfPiece[0], coordinatesOfPiece[1] + (distance < 0 ? -1 : 1) };
+
             setPiece(rook, newRookCoordinates);
             removePiece(rookCoordinates);
         }
@@ -182,9 +197,11 @@ public class Board {
     public boolean checkNextBoardForCheck(Piece piece, int[] toCoordinates) {
         Piece[][] tempGrid = getGrid();
         boolean threatened = false;
+
         mitigatedMovePiece(piece, toCoordinates);
         if (getKing(turn) != null) threatened = checkBoardForCheck();
         setGrid(tempGrid);
+
         return threatened;
     }
 
@@ -233,10 +250,12 @@ public class Board {
                 square.removeHighlight();
             }
         }
+        
     }
 
     public void rotateBoard() {
         isBoardRotated = ! isBoardRotated;
+
         Piece[][] grid = getGrid();
         Piece[][] gridCopy = new Piece[8][8];
 
@@ -302,7 +321,16 @@ public class Board {
                 newPiece = new Pawn(pawnColour, this);
         }
         setPiece((newPiece), pawn.getCoordinates());
-        pieceConfiguration.setPieceGrid(getGrid());
+
+        // PieceConfiguration må registrere at bonden er promotert, men da dette er
+        // etter turen er byttet, må brettet roteres før den settes, og så tilbake igjen
+        if (isBoardRotationEnabled) {
+            rotateBoard();
+            pieceConfiguration.setPieceGrid(getGrid());
+            rotateBoard();
+        } else {
+            pieceConfiguration.setPieceGrid(getGrid());
+        }
     }
 
     private void setPiece(Piece piece, int[] toCoordinates) {
@@ -368,6 +396,15 @@ public class Board {
         // setter dronninger
         chessBoard[0][3].setPiece(new Queen(Colour.BLACK, this));
         chessBoard[7][3].setPiece(new Queen(Colour.WHITE, this));
+    }
+
+    private void restoreRotation() {
+        if ((turn == Colour.WHITE && isBoardRotated)
+                || (turn == Colour.BLACK && !isBoardRotated && isBoardRotationEnabled)
+                || (turn == Colour.BLACK && isBoardRotated && !isBoardRotationEnabled)) {
+
+            rotateBoard();
+        }
     }
 
     @Override

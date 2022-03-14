@@ -2,18 +2,17 @@ package chess;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.application.Platform;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -31,7 +30,6 @@ import javafx.stage.StageStyle;
 public class ChessController {
 
     private GameManager gameManager;
-    private List<Square> squareList = new ArrayList<>();
 
     @FXML
     private VBox root;
@@ -179,19 +177,16 @@ public class ChessController {
         
     }
 
-    private void initializeSquaresAndPieces() {
-        for (Node node : gridPane.getChildren()) {
-            if (node instanceof Square) {
-                Square square = (Square) node;
-                squareList.add(square);
-            }
-        }
+    private List<Square> getSquaresInGridPane() {
+        return Stream.of(gridPane.getChildren().toArray())
+                .filter(node -> (node instanceof Square))
+                .map(node -> (Square) node)
+                .collect(Collectors.toList());
     }
 
     @FXML
     public void initialize() {
-        initializeSquaresAndPieces();
-        gameManager = new GameManager(squareList);
+        gameManager = new GameManager(getSquaresInGridPane());
 
         // TODO: implementere navn
         gameManager.startNewGame("playerOneName", "playerTwoName", false);
