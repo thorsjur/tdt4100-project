@@ -9,12 +9,14 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import chess.io.GameReaderWriter;
 import chess.model.Board;
 import chess.model.Game;
 import chess.model.GameManager;
 import chess.model.Pawn;
 import chess.model.Piece;
 import chess.model.Square;
+
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -102,6 +104,17 @@ public class ChessController {
     }
 
     @FXML
+    private void handleOnSaveButtonClick() {
+        GameReaderWriter gameReaderWriter = new GameReaderWriter();
+        try {
+            gameReaderWriter.save(gameManager.getGame());
+            System.out.println("Game saved successfully ...");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void handleOnSettingsButtonClick(MouseEvent event) throws IOException {
         Stage settingsStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/Settings.fxml"));
@@ -184,7 +197,7 @@ public class ChessController {
     }
 
     private List<Square> getSquaresInGridPane() {
-        return Stream.of(gridPane.getChildren().toArray())
+        return gridPane.getChildren().stream()
                 .filter(node -> (node instanceof Square))
                 .map(node -> (Square) node)
                 .collect(Collectors.toList());

@@ -64,4 +64,19 @@ public class PieceConfiguration {
     public String toString() {
         return turn.toString() + " " + String.valueOf(hasPreviousGame()) + " " + String.valueOf(hasNextGame());
     }
+
+    public int countPieceConfigurations() {
+        PieceConfiguration root = this;
+        while (root.hasPreviousGame()) {
+            root = root.getPreviousGame();
+        }
+
+        int count = 0;
+        while (root.hasNextGame()) {
+            count++;
+            root = root.getNextGame();
+        }
+
+        return count;
+    }
 }

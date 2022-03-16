@@ -24,7 +24,7 @@
                         <String fx:value="settings-button" />
                      </styleClass>
                   </Button>
-                  <Button mnemonicParsing="false">
+                  <Button mnemonicParsing="false" onMouseClicked="#handleOnSaveButtonClick">
                      <styleClass>
                         <String fx:value="special-button" />
                         <String fx:value="save-button" />

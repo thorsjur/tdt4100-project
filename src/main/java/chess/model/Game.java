@@ -1,16 +1,14 @@
 package chess.model;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Game {
 
     private Board board;
-    private final Calendar date = new GregorianCalendar();
-    private String playerOne;
-    private String playerTwo;
+    private LocalDateTime date = LocalDateTime.now();
+    private String playerOneName = "Player One";
+    private String playerTwoName = "Player Two";
     private Colour turn = Colour.WHITE;
     private Colour winner;
     private boolean gameFinished;
@@ -35,8 +33,24 @@ public class Game {
         return winner;
     }
 
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public String getPlayerOneName() {
+        return playerOneName;
+    }
+
+    public String getPlayerTwoName() {
+        return playerTwoName;
+    }
+
     public Square getSelectedSquare() {
         return board.getSelectedSquare();
+    }
+
+    public int getNumberOfMoves() {
+        return board.getPieceConfiguration().countPieceConfigurations();
     }
 
     public void nextTurn() {

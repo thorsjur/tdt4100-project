@@ -6,6 +6,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Board",
+            "request": "launch",
+            "mainClass": "TDT4100_project/chess.model.Board",
+            "projectName": "tdt4100_v2022_prosjekt_boilerplate"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "TDT4100_project/chess.model.Main",
+            "projectName": "tdt4100_v2022_prosjekt_boilerplate"
+        },
+        {
+            "type": "java",
+            "name": "Launch GameReaderWriter",
+            "request": "launch",
+            "mainClass": "TDT4100_project/chess.io.GameReaderWriter",
+            "projectName": "tdt4100_v2022_prosjekt_boilerplate"
+        },
+        {
+            "type": "java",
             "name": "Launch Main",
             "request": "launch",
             "mainClass": "TDT4100_project/chess.Main",

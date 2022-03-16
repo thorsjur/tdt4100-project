@@ -15,6 +15,8 @@ public class Board {
     private boolean isBoardRotated = false;
     private boolean isChanged = true;
 
+    public record Coordinate(int row, int column) { }
+
     // TODO: implementeres under lagring og liknende
     public Board(List<Square> squareList, Square[][] chessBoard) {
         this.chessBoard = chessBoard;
