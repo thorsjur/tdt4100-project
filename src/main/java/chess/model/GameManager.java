@@ -1,21 +1,16 @@
 package chess.model;
 
-import java.util.HashMap;
-import java.util.List;
-
 public class GameManager {
 
     Game game;
-    List<Square> squareList;
     boolean boardRotationEnabled;
 
-    public GameManager(List<Square> squareList) {
-        this.squareList = squareList;
+    public GameManager() {
     }
 
     public void startNewGame(String playerOneName, String playerTwoName, boolean boardRotationEnabled) {
         // TODO: Implementere navn
-        game = new Game(squareList);
+        game = new Game();
         game.getBoard().setBoardRotation(boardRotationEnabled);
     }
 
@@ -31,12 +26,8 @@ public class GameManager {
         return getBoard().getTurn();
     }
 
-    public List<Square> getSquareList() {
-        return squareList;
-    }
-
     public Colour getWinner() {
-        if (! game.isFinished()) {
+        if (!game.isFinished()) {
             throw new IllegalStateException("Current game is not finished!");
         }
 
@@ -71,22 +62,5 @@ public class GameManager {
     public boolean isBoardRotationEnabled() {
         return game.getBoard().isBoardRotationEnabled();
     }
-
-    public HashMap<Square, String> getSquareToPathMap() {
-        HashMap<Square, String> squarePathMap = new HashMap<Square, String>();
-
-        for (Square square : squareList) {
-            Piece pieceAtSquare = square.getPiece();
-            if (pieceAtSquare == null) {
-                squarePathMap.put(square, null);
-                continue;
-            }
-            String imagePath = "src/main/resources/images/" + pieceAtSquare.toString() + ".png";
-            squarePathMap.put(square, imagePath);
-        }
-        return squarePathMap;
-    }
-
-
 
 }

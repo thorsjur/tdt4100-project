@@ -12,7 +12,8 @@ public class PieceConfiguration {
         this.pieceGrid = pieceGrid;
     }
 
-    public PieceConfiguration(PieceConfiguration previousGame, Piece[][] pieceGrid, Colour turn, boolean isBoardRotated) {
+    public PieceConfiguration(PieceConfiguration previousGame, Piece[][] pieceGrid, Colour turn,
+            boolean isBoardRotated) {
         this.pieceGrid = pieceGrid;
         this.previousGame = previousGame;
         this.isBoardRotated = isBoardRotated;

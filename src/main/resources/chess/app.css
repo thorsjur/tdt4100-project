@@ -18,6 +18,22 @@
     -fx-background-color: -white-square;
 }
 
+.viable-move-square {
+    -fx-background-color: #188321a8;
+}
+
+.viable-take-square {
+    -fx-background-color: #d839119a;
+}
+
+.selected-square {
+    -fx-background-color: #3cdf4a8a;
+}
+
+.viable-castle-destination_square {
+    -fx-background-color: #c90fc998;
+}
+
 .board-border {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ffde00, #b43486);
     -fx-effect: dropshadow(gaussian, #0000003b, 25, 0.5, 0, 0);

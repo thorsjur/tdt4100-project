@@ -1,6 +1,9 @@
 package chess.model;
 
 import java.util.List;
+
+import chess.model.Board.Coordinate;
+
 import java.util.ArrayList;
 
 public class Knight extends Piece {
@@ -23,11 +26,12 @@ public class Knight extends Piece {
     @Override
     public List<Move> getValidMoves() {
         List<Move> moveList = new ArrayList<Move>();
-        int[] fromCoordinates = getCoordinates();
+        Coordinate fromCoordinates = getCoordinates();
 
         for (int[] jump : jumps) {
-            int[] toCoordinates = { fromCoordinates[0] + jump[0], fromCoordinates[1] + jump[1] };
-            if (toCoordinates[0] > 7 || toCoordinates[0] < 0 || toCoordinates[1] > 7 || toCoordinates[1] < 0) {
+            Coordinate toCoordinates = fromCoordinates.addVector(jump);
+            if (toCoordinates.row() > 7 || toCoordinates.row() < 0 || toCoordinates.column() > 7
+                    || toCoordinates.column() < 0) {
                 continue;
             }
             Piece atPiece = board.getPiece(toCoordinates);

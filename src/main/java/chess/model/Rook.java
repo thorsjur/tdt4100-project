@@ -7,9 +7,9 @@ public class Rook extends Piece {
 
     public Rook(Colour colour, Board board) {
         super(colour, board);
-        moveDirections = new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
+        moveDirections = new Direction[] { Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT };
     }
-    
+
     @Override
     public List<Move> getValidMoves() {
         List<Move> moveList = new ArrayList<Move>();

@@ -1,14 +1,40 @@
 package chess.model;
 
-import javafx.scene.layout.Pane;
+import chess.model.Board.Coordinate;
 
-public class Square extends Pane {
+public class Square {
 
+    private Coordinate coordinate;
     private Piece piece;
     private Board board;
+    private State state = State.DEFAULT;
+
+    public enum State {
+        DEFAULT, VIABLE_MOVE, VIABLE_TAKE, VIABLE_CASTLE_DESTINATION, SELECTED;
+    }
+
+    public Square(Coordinate coordinate) {
+        this.coordinate = coordinate;
+    }
 
     public Piece getPiece() {
         return piece;
+    }
+
+    public Coordinate getCoordinate() {
+        return coordinate;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public Colour getColour() {
+        return ((coordinate.row() + coordinate.column()) % 2 == 0) ? Colour.WHITE : Colour.BLACK;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     public void setPiece(Piece piece) {
@@ -23,10 +49,6 @@ public class Square extends Pane {
         this.board = board;
     }
 
-    public void setBackgroundColor(String hexColour) {
-        setStyle("-fx-background-color: " + hexColour);
-    }
-
     public void selectSquare() {
         Piece piece = getPiece();
 
@@ -36,7 +58,7 @@ public class Square extends Pane {
                 board.selectSquare(this);
             }
             board.selectSquare(this);
-            setHighlight();
+            setState(State.SELECTED);
             piece.highlightValidMoves();
         } else {
             deselectSelectedSquare(board);
@@ -48,51 +70,24 @@ public class Square extends Pane {
     public static void deselectSelectedSquare(Board board) {
         Square selectedSquare = board.getSelectedSquare();
         if (selectedSquare != null) {
-            selectedSquare.removeHighlight();
+            selectedSquare.setState(State.DEFAULT);
+            ;
         }
         Square nullSquare = null;
         board.removeAllHighlights();
         board.selectSquare(nullSquare);
     }
 
-    public void setHighlight(String hexColour) {
-        setStyle("-fx-background-color: " + hexColour);
-    }
-
-    public void removeHighlight() {
-        String hexColour = getColourOfSquare().getHexColour();
-        setStyle("-fx-background-color: " + hexColour);
-    }
-
-    private void setHighlight() {
-        setStyle("-fx-background-color: " + "#429d42");
-    }
-
-    public int[] getCoordinates() {
-        String squareId = getId();
-        int[] coordinates = {
-                squareId.charAt(squareId.length() - 2) - '0',
-                squareId.charAt(squareId.length() - 1) - '0' 
-            };
-        return coordinates;
-    }
-
     @Override
     public String toString() {
-        int[] coordinates = getCoordinates();
-        int row = coordinates[0];
-        int col = coordinates[1];
+        Coordinate coordinate = getCoordinate();
+        int row = coordinate.row();
+        int col = coordinate.column();
+
         if (piece != null) {
             return piece.toString() + " at row: " + row + " | col:" + col;
         }
         return "No piece, " + " at row: " + row + " | col:" + col;
-    }
-
-    private Colour getColourOfSquare() {
-        int[] coordinates = getCoordinates();
-        int row = coordinates[0];
-        int col = coordinates[1];
-        return (row + col) % 2 == 0 ? Colour.WHITE : Colour.BLACK;
     }
 
 }

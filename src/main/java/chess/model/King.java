@@ -1,6 +1,9 @@
 package chess.model;
 
 import java.util.List;
+
+import chess.model.Board.Coordinate;
+
 import java.util.ArrayList;
 
 public class King extends Piece {
@@ -23,12 +26,13 @@ public class King extends Piece {
         for (boolean longCastle : new boolean[] { true, false }) {
             if (canCastle(longCastle)) {
                 int horizontalDifference = ((board.getTurn() == Colour.WHITE) ? 2 : -2);
-                if (! board.isBoardRotationEnabled()) {
-                    horizontalDifference = (! longCastle ? 2 : -2);
+                if (!board.isBoardRotationEnabled()) {
+                    horizontalDifference = (!longCastle ? 2 : -2);
                 } else if (longCastle) {
                     horizontalDifference = -horizontalDifference;
                 }
-                Move castle = new Move(getCoordinates(), getRelativeCoordinates(new int[] { 0, horizontalDifference }),
+                Move castle = new Move(getCoordinates(),
+                        getRelativeCoordinates(new Coordinate(0, horizontalDifference)),
                         Move.MoveType.CASTLE);
                 moveList.add(castle);
             }
@@ -66,7 +70,7 @@ public class King extends Piece {
         // Trusler fra motstanders springere
         int[][] knightJumps = Knight.getJumpArray();
         for (int[] jump : knightJumps) {
-            Piece piece = getPieceRelativeToPosition(jump);
+            Piece piece = getPieceRelativeToPosition(new Coordinate(jump[0], jump[1]));
             if (piece != null && piece.getColour() != this.getColour() && piece instanceof Knight)
                 return true;
         }
@@ -74,17 +78,18 @@ public class King extends Piece {
     }
 
     public boolean isMated(boolean stalemate) {
-        if (! isThreatened() && ! stalemate) {
+        if (!isThreatened() && !stalemate) {
             return false;
         }
-        
+
         for (Piece[] row : board.getGrid()) {
             for (Piece piece : row) {
-                if (piece == null) continue;
+                if (piece == null)
+                    continue;
                 if (piece.getColour() == getColour()) {
                     List<Move> moveList = piece.getValidMoves();
                     for (Move move : moveList) {
-                        if (! move.leadsToCheck(board)) {
+                        if (!move.leadsToCheck(board)) {
                             return false;
                         }
                     }
@@ -106,7 +111,7 @@ public class King extends Piece {
                 horizontalDifference = (longCastle ? -4 : 3);
             }
         }
-        Piece rook = getPieceRelativeToPosition(new int[]{ 0, horizontalDifference });
+        Piece rook = getPieceRelativeToPosition(new Coordinate(0, horizontalDifference));
         return ((rook instanceof Rook) ? (Rook) rook : null);
     }
 
@@ -150,16 +155,16 @@ public class King extends Piece {
         boolean turnIsWhite = board.getTurn() == Colour.WHITE;
         boolean directionCondition = longCastle;
         if (board.isBoardRotationEnabled()) {
-            directionCondition = (! turnIsWhite && ! longCastle) || (turnIsWhite && longCastle);
+            directionCondition = (!turnIsWhite && !longCastle) || (turnIsWhite && longCastle);
         }
         int rookDiff = (longCastle ? 4 : 3);
-        Piece piece = getPieceRelativeToPosition(new int[] { 0, (directionCondition ? -rookDiff : rookDiff) });
+        Piece piece = getPieceRelativeToPosition(new Coordinate(0, (directionCondition ? -rookDiff : rookDiff)));
 
         if (piece == null || !(piece instanceof Rook) || piece.hasMoved()) {
             return false;
         }
         for (int i = 1; i <= rookDiff - 1; i++) {
-            int[] toCoordinates = getRelativeCoordinates(new int[]{0, (directionCondition ? -i : i)});
+            Coordinate toCoordinates = getRelativeCoordinates(new Coordinate(0, (directionCondition ? -i : i)));
             Square passingSquare = board.getSquare(toCoordinates);
             Piece pieceAtSquare = passingSquare.getPiece();
             if (longCastle && pieceAtSquare == null && i == rookDiff - 1) {

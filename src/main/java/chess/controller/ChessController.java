@@ -2,22 +2,22 @@ package chess.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import chess.io.GameReaderWriter;
 import chess.model.Board;
+import chess.model.Board.Coordinate;
+import chess.model.Colour;
 import chess.model.Game;
 import chess.model.GameManager;
 import chess.model.Pawn;
 import chess.model.Piece;
 import chess.model.Square;
-
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,6 +29,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -55,52 +56,91 @@ public class ChessController {
     private Button nextBoardButton;
 
     private void updateBoard() {
-        HashMap<Square, String> squarePathMap = gameManager.getSquareToPathMap();
+        displayPieces();
+        displaySquares();
+    }
 
-        for (Square square : squarePathMap.keySet()) {
-            ImageView pieceImageView = (ImageView) square.getChildren().get(0);
-            if (squarePathMap.get(square) == null) {
-                pieceImageView.setImage(null);
-            } else {
-                String imagePath = squarePathMap.get(square);
-                pieceImageView.setImage(new Image(new File(imagePath).toURI().toString()));
+    private void displaySquares() {
+        Map<Pane, Square> paneToSquareMap = gridPane.getChildren().stream()
+                .filter(node -> node instanceof Pane)
+                .map(node -> (Pane) node)
+                .collect(Collectors.toMap(pane -> pane,
+                        pane -> gameManager.getBoard()
+                                .getSquare(new Coordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane)))));
+
+        for (Pane pane : paneToSquareMap.keySet()) {
+            ObservableList<String> styleClassList = pane.getStyleClass();
+
+            styleClassList.clear();
+
+            Square square = paneToSquareMap.get(pane);
+            String styleClass;
+            switch (square.getState()) {
+                case VIABLE_MOVE:
+                    styleClass = "viable-move-square";
+                    break;
+                case VIABLE_TAKE:
+                    styleClass = "viable-take-square";
+                    break;
+                case VIABLE_CASTLE_DESTINATION:
+                    styleClass = "viable-castle-destination-square";
+                    break;
+                case SELECTED:
+                    styleClass = "selected-square";
+                    break;
+                default:
+                    styleClass = null;
+                    break;
             }
+
+            if (styleClass != null) {
+                styleClassList.add(styleClass);
+            } else {
+                String defaultSquareStyle = (square.getColour() == Colour.WHITE) ? "white-square" : "black-square";
+                styleClassList.add(defaultSquareStyle);
+            }
+        }
+    }
+
+    private void displayPieces() {
+        Map<ImageView, Square> imageViewToSquareMap = gridPane.getChildren().stream()
+                .filter(node -> node instanceof Pane)
+                .map(node -> (Pane) node)
+                .collect(Collectors.toMap(pane -> (ImageView) pane.getChildren().get(0),
+                        pane -> gameManager.getBoard()
+                                .getSquare(new Coordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane)))));
+
+        String imagePathBasis = "src/main/resources/images/";
+        for (ImageView imageView : imageViewToSquareMap.keySet()) {
+            Square square = imageViewToSquareMap.get(imageView);
+            Piece piece = square.getPiece();
+
+            Image image = (piece != null)
+                    ? new Image(new File(imagePathBasis + piece.toString() + ".png").toURI().toString())
+                    : null;
+            imageView.setImage(image);
         }
     }
 
     @FXML
     private void handleOnPieceClick(MouseEvent event) {
         Game game = gameManager.getGame();
-        Square selectedSquare = game.getSelectedSquare();
-        Square clickedSquare = (Square) event.getPickResult().getIntersectedNode().getParent();
-
         if (! gameManager.isAtCurrentBoard()) {
             gameManager.goToCurrentBoard();
         }
-        if (selectedSquare == null) {
-            clickedSquare.selectSquare();
-            return;
-        }
-        if (selectedSquare == clickedSquare) {
-            Square.deselectSelectedSquare(game.getBoard());
-            return;
+
+        Pane clickedPane = (Pane) event.getPickResult().getIntersectedNode().getParent();
+        Square clickedSquare = game
+                .selectSquare(new Coordinate(GridPane.getRowIndex(clickedPane), GridPane.getColumnIndex(clickedPane)));
+
+        Piece piece = clickedSquare.getPiece();
+        if (piece instanceof Pawn && ((Pawn)piece).canPromote()) {
+            pawnPromotion((Pawn) piece);
         }
 
-        Piece selectedPiece = selectedSquare.getPiece();
-        int[] coordinates = clickedSquare.getCoordinates();
-        if (selectedPiece != null && game.isValidMove(selectedPiece, coordinates)) {
-            game.makeMove(selectedPiece, coordinates);
-            if (game.checkForMate()) {
-                initializeGameFinished();
-            }
-            if (selectedPiece instanceof Pawn && ((Pawn) selectedPiece).canPromote()) {
-                pawnPromotion((Pawn) selectedPiece);
-            }
-            return;
+        if (game.checkForMate()) {
+            initializeGameFinished();
         }
-        
-        Square.deselectSelectedSquare(game.getBoard());
-        clickedSquare.selectSquare();
     }
 
     @FXML
@@ -196,16 +236,9 @@ public class ChessController {
         
     }
 
-    private List<Square> getSquaresInGridPane() {
-        return gridPane.getChildren().stream()
-                .filter(node -> (node instanceof Square))
-                .map(node -> (Square) node)
-                .collect(Collectors.toList());
-    }
-
     @FXML
     public void initialize() {
-        gameManager = new GameManager(getSquaresInGridPane());
+        gameManager = new GameManager();
 
         // TODO: implementere navn
         gameManager.startNewGame("playerOneName", "playerTwoName", false);

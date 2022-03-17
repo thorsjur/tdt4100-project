@@ -1,60 +1,35 @@
 package chess.model;
 
-import java.util.Arrays;
+import chess.model.Board.Coordinate;
 
 public class Move {
 
     enum MoveType {
-        TAKE {
-            public String getHexColour() {
-                return "#8e0000";
-            }
-        },
-        MOVE {
-            public String getHexColour() {
-                return "#05752a";
-            }
-        },
-        EN_PASSANT {
-            public String getHexColour() {
-                return "#750550";
-            }
-        },
-        CASTLE {
-            public String getHexColour() {
-                return "#683ad0";
-            }
-        },
-        PROMOTION {
-            public String getHexColour() {
-                return "#ffd700";
-            }
-        };
-
-        public String getHexColour() {
-            return this.getHexColour();
-        }
+        TAKE,
+        MOVE,
+        EN_PASSANT,
+        CASTLE;
     }
 
     private MoveType type;
-    private int[] fromCoordinates;
-    private int[] toCoordinates;
+    private Coordinate fromCoordinates;
+    private Coordinate toCoordinates;
 
-    public Move(int[] fromCoordinates, int[] toCoordinates) {
+    public Move(Coordinate fromCoordinates, Coordinate toCoordinates) {
         this.fromCoordinates = fromCoordinates;
         this.toCoordinates = toCoordinates;
     }
 
-    public Move(int[] fromCoordinates, int[] toCoordinates, MoveType type) {
+    public Move(Coordinate fromCoordinates, Coordinate toCoordinates, MoveType type) {
         this(fromCoordinates, toCoordinates);
         this.type = type;
     }
 
-    public int[] getFromCoordinates() {
+    public Coordinate getFromCoordinates() {
         return fromCoordinates;
     }
 
-    public int[] getToCoordinates() {
+    public Coordinate getToCoordinates() {
         return toCoordinates;
     }
 
@@ -63,12 +38,25 @@ public class Move {
     }
 
     public void highlightMove(Board board) {
-        String hexColour = "#000000";
-        if (type != null) {
-            hexColour = type.getHexColour();
-        }
         Square square = board.getSquare(toCoordinates);
-        square.setHighlight(hexColour);
+        Square.State state;
+
+        switch (getType()) {
+            case MOVE:
+                state = Square.State.VIABLE_MOVE;
+                break;
+            case TAKE:
+                state = Square.State.VIABLE_TAKE;
+                break;
+            case CASTLE:
+                state = Square.State.VIABLE_CASTLE_DESTINATION;
+                break;
+            default:
+                state = Square.State.DEFAULT;
+                break;
+        }
+
+        square.setState(state);
     }
 
     public boolean leadsToCheck(Board board) {
@@ -81,13 +69,17 @@ public class Move {
         if (!(obj instanceof Move)) {
             return false;
         }
-        return Arrays.equals(this.getFromCoordinates(), ((Move) obj).getFromCoordinates())
-                && Arrays.equals(this.getToCoordinates(), ((Move) obj).getToCoordinates());
+
+        Move move = (Move) obj;
+        return move.getToCoordinates().equals(getToCoordinates())
+                && move.getFromCoordinates().equals(getFromCoordinates());
     }
 
     @Override
     public String toString() {
-        return "from row: " + fromCoordinates[0] + " column: " + fromCoordinates[1] + " | to row: " + toCoordinates[0]
-                + " column: " + toCoordinates[1];
+        return "from row: " + fromCoordinates.row() 
+                + " column: " + fromCoordinates.column() 
+                + " | to row: " + toCoordinates.row()
+                + " column: " + toCoordinates.column();
     }
 }

@@ -1,7 +1,8 @@
 package chess.model;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
+import chess.model.Board.Coordinate;
 
 public class Game {
 
@@ -13,8 +14,8 @@ public class Game {
     private Colour winner;
     private boolean gameFinished;
 
-    public Game(List<Square> squareList) {
-        board = new Board(squareList, turn);
+    public Game() {
+        board = new Board(turn);
     }
 
     public Game(Board board) {
@@ -58,7 +59,7 @@ public class Game {
         board.nextTurn();
     }
 
-    public void makeMove(Piece piece, int[] toCoordinates) {
+    public void makeMove(Piece piece, Coordinate toCoordinates) {
         board.movePiece(piece, toCoordinates);
         nextTurn();
     }
@@ -87,12 +88,42 @@ public class Game {
         }
     }
 
-    public boolean isValidMove(Piece piece, int[] toCoordinates) {
+    public boolean isValidMove(Piece piece, Coordinate toCoordinates) {
         return board.isValidMove(piece, toCoordinates);
     }
 
     public boolean isFinished() {
         return gameFinished;
+    }
+
+    public Square selectSquare(Coordinate coordinates) {
+        Square selectedSquare = board.getSelectedSquare();
+        Square newSelectedSquare = board.getSquare(coordinates);
+
+        if (selectedSquare == null) {
+            newSelectedSquare.selectSquare();
+            return newSelectedSquare;
+        }
+        if (selectedSquare == newSelectedSquare) {
+            Square.deselectSelectedSquare(getBoard());
+            return newSelectedSquare;
+        }
+
+        Piece selectedPiece = selectedSquare.getPiece();
+        if (selectedPiece != null && isValidMove(selectedPiece, coordinates)) {
+            makeMove(selectedPiece, coordinates);
+            return newSelectedSquare;
+        }
+
+        Square.deselectSelectedSquare(getBoard());
+        newSelectedSquare.selectSquare();
+        return newSelectedSquare;
+
+    }
+
+    public boolean canPromotePawn(Square square) {
+        Piece piece = square.getPiece();
+        return piece instanceof Pawn && ((Pawn) piece).canPromote();
     }
 
 }

@@ -1,6 +1,9 @@
 package chess.model;
 
 import java.util.List;
+
+import chess.model.Board.Coordinate;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -21,13 +24,13 @@ public abstract class Piece {
 
         private Direction(int[] directionVector) {
             this.directionVector = directionVector;
-            this.inverseDirectionVector = new int[]{-directionVector[0], -directionVector[1]};
+            this.inverseDirectionVector = new int[] { -directionVector[0], -directionVector[1] };
         }
 
         public int[] getDirectionVector(Board board) {
             boolean boardRotationEnabled = board.isBoardRotationEnabled();
             Colour turn = board.getTurn();
-            return ((! boardRotationEnabled && turn == Colour.BLACK) ? inverseDirectionVector : directionVector);
+            return ((!boardRotationEnabled && turn == Colour.BLACK) ? inverseDirectionVector : directionVector);
         }
     }
 
@@ -47,12 +50,13 @@ public abstract class Piece {
         List<Move> moveList = getValidMoves();
         List<Move> moveListSpecificType = new ArrayList<>();
         for (Move move : moveList) {
-            if (move.getType() == type) moveListSpecificType.add(move);
+            if (move.getType() == type)
+                moveListSpecificType.add(move);
         }
         return moveListSpecificType;
     }
 
-    public int[] getCoordinates() {
+    public Coordinate getCoordinates() {
         return board.getCoordinatesOfPiece(this);
     }
 
@@ -63,35 +67,34 @@ public abstract class Piece {
     public void highlightValidMoves() {
         List<Move> moveList = getValidMoves();
         for (Move move : moveList) {
-            if (! move.leadsToCheck(board)) move.highlightMove(board);
+            if (!move.leadsToCheck(board))
+                move.highlightMove(board);
         }
     }
 
     public void registerMove() {
-        hasMoved = true;
+        this.hasMoved = true;
     }
 
     public boolean hasMoved() {
         return hasMoved;
     }
 
-    public int[] getRelativeCoordinates(int[] coordinateDifference) {
-        int[] fromCoordinates = getCoordinates();
-        int[] toCoordinates = { fromCoordinates[0] + coordinateDifference[0], fromCoordinates[1] + coordinateDifference[1] };
-        return toCoordinates;
+    public Coordinate getRelativeCoordinates(Coordinate coordinateDifference) {
+        return getCoordinates().add(coordinateDifference);
     }
 
-    public Piece getPieceRelativeToPosition(int[] coordinateDifference) {
-        int[] relativeCoordinates = getRelativeCoordinates(coordinateDifference);
+    public Piece getPieceRelativeToPosition(Coordinate coordinateDifference) {
+        Coordinate relativeCoordinates = getRelativeCoordinates(coordinateDifference);
         return board.getPiece(relativeCoordinates);
     }
 
-    public List<Move> getUnidirectionalMoves(Direction direction, int[] currentCoordinates, boolean take) {
+    public List<Move> getUnidirectionalMoves(Direction direction, Coordinate currentCoordinates, boolean take) {
         int[] directionVector = direction.getDirectionVector(board);
-        int[] toCoordinates = { currentCoordinates[0] + directionVector[0],
-                currentCoordinates[1] + directionVector[1] };
+        Coordinate toCoordinates = currentCoordinates.addVector(directionVector);
 
-        if (toCoordinates[0] > 7 || toCoordinates[0] < 0 || toCoordinates[1] > 7 || toCoordinates[1] < 0) {
+        if (toCoordinates.row() > 7 || toCoordinates.row() < 0 || toCoordinates.column() > 7
+                || toCoordinates.column() < 0) {
             return new ArrayList<Move>();
         }
         Piece atPiece = board.getPiece(toCoordinates);
