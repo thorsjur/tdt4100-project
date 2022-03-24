@@ -2,15 +2,28 @@ package chess.model;
 
 public class GameManager {
 
-    Game game;
-    boolean boardRotationEnabled;
+    private Game game;
+    private boolean boardRotationEnabled = false;
+    private boolean displayModeEnabled = false;
 
-    public GameManager() {
-    }
 
     public void startNewGame(String playerOneName, String playerTwoName, boolean boardRotationEnabled) {
         // TODO: Implementere navn
         game = new Game();
+        game.getBoard().setBoardRotation(boardRotationEnabled);
+
+        this.displayModeEnabled = false;
+    }
+
+    public void initializeGameFromPC(Colour winner, PieceConfiguration pieceConfiguration) {
+        game = new Game(winner, pieceConfiguration);
+
+        if (winner != null) {
+            displayModeEnabled = true;
+        } else {
+            displayModeEnabled = false;
+        }
+
         game.getBoard().setBoardRotation(boardRotationEnabled);
     }
 
@@ -36,6 +49,10 @@ public class GameManager {
 
     public boolean isAtCurrentBoard() {
         return game.getBoard().getPieceConfiguration().isAtCurrentBoard();
+    }
+
+    public boolean isDisplayModeEnabled() {
+        return displayModeEnabled;
     }
 
     public void goToCurrentBoard() {

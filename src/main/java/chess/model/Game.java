@@ -14,12 +14,38 @@ public class Game {
     private Colour winner;
     private boolean gameFinished;
 
+    public record GameData(
+            String date,
+            String playerOneName,
+            String playerTwoName,
+            Colour winner,
+            int moves,
+            PieceConfiguration currentPieceConfiguration) {
+    };
+
     public Game() {
         board = new Board(turn);
     }
 
-    public Game(Board board) {
-        this.board = board;
+    public Game(Colour winner, PieceConfiguration pieceConfiguration) {
+        PieceConfiguration currentPieceConfiguration = pieceConfiguration.getCurrentPieceConfiguration();
+        board = new Board(currentPieceConfiguration.getTurn());
+        board.setGrid(currentPieceConfiguration.getPieceGrid());
+        board.setPieceConfiguration(currentPieceConfiguration);
+
+        if (winner != null) {
+            this.winner = winner;
+            gameFinished = true;
+            setTurn(winner);
+        } else {
+            setTurn(currentPieceConfiguration.getTurn());
+        }
+
+        for (Piece piece : currentPieceConfiguration) {
+            if (piece != null) piece.setBoard(board);
+        }
+
+        
     }
 
     public Board getBoard() {
@@ -57,6 +83,11 @@ public class Game {
     public void nextTurn() {
         turn = ((turn == Colour.WHITE) ? Colour.BLACK : Colour.WHITE);
         board.nextTurn();
+    }
+
+    public void setTurn(Colour turn) {
+        this.turn = turn;
+        this.board.setTurn(turn);
     }
 
     public void makeMove(Piece piece, Coordinate toCoordinates) {

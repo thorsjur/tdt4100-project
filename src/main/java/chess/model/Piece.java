@@ -64,6 +64,10 @@ public abstract class Piece {
         return board;
     }
 
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
     public void highlightValidMoves() {
         List<Move> moveList = getValidMoves();
         for (Move move : moveList) {

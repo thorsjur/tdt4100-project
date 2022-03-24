@@ -43,11 +43,6 @@ public class Board {
         }
     }
 
-    // TODO: implementeres under lagring og liknende
-    public Board(Square[][] chessBoard) {
-        this.chessBoard = chessBoard;
-    }
-
     public Board(Colour turn) {
         this.initializeBoard();
         this.turn = turn;
@@ -62,6 +57,10 @@ public class Board {
 
     public void setChanged(boolean isChanged) {
         this.isBoardChanged = isChanged;
+    }
+
+    public void setTurn(Colour turn) {
+        this.turn = turn;
     }
 
     public Square[][] getChessBoard() {
@@ -146,6 +145,10 @@ public class Board {
         if (selectedSquare != null) {
             Square.deselectSelectedSquare(this);
         }
+    }
+
+    public void setPieceConfiguration(PieceConfiguration pieceConfiguration) {
+        this.pieceConfiguration = pieceConfiguration;
     }
 
     public void goToCurrentPieceConfiguration() {
@@ -456,12 +459,13 @@ public class Board {
             newString += "\n";
             for (Piece piece : row) {
                 if (piece != null) {
-                    newString += " | " + displayMap.get(piece.toString()) + " | ";
+                    newString += " | " + displayMap.get(piece.toString());
                 } else {
-                    newString += " | " + " " + " | ";
+                    newString += "  | ";
                 }
             }
         }
         return newString;
     }
+    
 }

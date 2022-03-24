@@ -15,4 +15,14 @@ public enum Colour {
         }
     };
 
+    public static Colour parseColour(String colour) {
+        if (colour.equals("WHITE") || colour.equals("white") || colour.equals("White")) {
+            return WHITE;
+        } else if (colour.equals("BLACK") || colour.equals("black") || colour.equals("Black")) {
+            return BLACK;
+        } else {
+            return null;
+        }
+    }
+
 }

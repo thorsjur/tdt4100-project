@@ -110,11 +110,12 @@ public class ChessController {
                         pane -> gameManager.getBoard()
                                 .getSquare(new Coordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane)))));
 
-        String imagePathBasis = "src/main/resources/images/";
+        
         for (ImageView imageView : imageViewToSquareMap.keySet()) {
             Square square = imageViewToSquareMap.get(imageView);
             Piece piece = square.getPiece();
 
+            String imagePathBasis = "src/main/resources/images/";
             Image image = (piece != null)
                     ? new Image(new File(imagePathBasis + piece.toString() + ".png").toURI().toString())
                     : null;
@@ -124,6 +125,10 @@ public class ChessController {
 
     @FXML
     private void handleOnPieceClick(MouseEvent event) {
+        if (gameManager.isDisplayModeEnabled()) {
+            return;
+        }
+
         Game game = gameManager.getGame();
         if (! gameManager.isAtCurrentBoard()) {
             gameManager.goToCurrentBoard();
@@ -141,17 +146,15 @@ public class ChessController {
         if (game.checkForMate()) {
             initializeGameFinished();
         }
+
+        
     }
 
     @FXML
     private void handleOnSaveButtonClick() {
         GameReaderWriter gameReaderWriter = new GameReaderWriter();
-        try {
-            gameReaderWriter.save(gameManager.getGame());
-            System.out.println("Game saved successfully ...");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        gameReaderWriter.save(gameManager.getGame());
+        System.out.println("Game saved successfully");
     }
 
     @FXML
@@ -170,6 +173,24 @@ public class ChessController {
         settingsController.checkTrueCheckBoxes(gameManager.isBoardRotationEnabled());
         settingsStage.initModality(Modality.APPLICATION_MODAL);
         settingsStage.showAndWait();
+    }
+
+    @FXML
+    private void handleOnLoadButtonClick(MouseEvent event) throws IOException {
+        Stage loadingStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/Loading.fxml"));
+
+        loadingStage.setTitle("Loading");
+        
+        loadingStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
+        loadingStage.setScene(new Scene(loader.load()));
+        loadingStage.setResizable(false);
+
+        LoadController loadController = loader.getController();
+        loadController.setGameManager(gameManager);
+
+        loadingStage.initModality(Modality.APPLICATION_MODAL);
+        loadingStage.showAndWait();
     }
 
     private void pawnPromotion(Pawn pawn) {

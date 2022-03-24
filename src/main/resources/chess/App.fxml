@@ -30,7 +30,7 @@
                         <String fx:value="save-button" />
                      </styleClass>
                   </Button>
-                  <Button mnemonicParsing="false">
+                  <Button fx:id="loadButton" mnemonicParsing="false" onMouseClicked="#handleOnLoadButtonClick">
                      <styleClass>
                         <String fx:value="special-button" />
                         <String fx:value="load-button" />
