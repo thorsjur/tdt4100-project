@@ -1,6 +1,7 @@
 package chess.model;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import chess.model.Board.Coordinate;
 
@@ -71,32 +72,23 @@ public class King extends Piece {
         int[][] knightJumps = Knight.getJumpArray();
         for (int[] jump : knightJumps) {
             Piece piece = getPieceRelativeToPosition(new Coordinate(jump[0], jump[1]));
-            if (piece != null && piece.getColour() != this.getColour() && piece instanceof Knight)
+            if (piece != null && !this.equalsColourOf(piece) && piece instanceof Knight)
                 return true;
         }
         return false;
     }
 
     public boolean isMated(boolean stalemate) {
-        if (!isThreatened() && !stalemate) {
+        if ((!isThreatened() && !stalemate) || getValidMoves().stream().anyMatch(move -> !move.leadsToCheck(board))) {
             return false;
         }
 
-        for (Piece[] row : board.getGrid()) {
-            for (Piece piece : row) {
-                if (piece == null)
-                    continue;
-                if (piece.getColour() == getColour()) {
-                    List<Move> moveList = piece.getValidMoves();
-                    for (Move move : moveList) {
-                        if (!move.leadsToCheck(board)) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-        return true;
+        return Stream.of(board.getGrid())
+                .flatMap(row -> Stream.of(row))
+                .filter(piece -> piece != null && this.equalsColourOf(piece))
+                .map(piece -> piece.getValidMoves())
+                .flatMap(list -> list.stream())
+                .allMatch(move -> move.leadsToCheck(board));
     }
 
     public Rook getCastleRook(boolean longCastle) {

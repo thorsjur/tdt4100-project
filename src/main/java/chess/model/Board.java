@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import chess.model.Move.MoveType;
+import chess.model.Piece.Direction;
+
 public class Board {
 
     private Square[][] chessBoard = new Square[8][8];
@@ -14,7 +17,6 @@ public class Board {
     private Colour turn;
     private boolean isBoardRotationEnabled;
     private boolean isBoardRotated = false;
-    private boolean isBoardChanged = true;
 
     public record Coordinate(int row, int column) {
 
@@ -51,14 +53,6 @@ public class Board {
         pieceConfiguration = new PieceConfiguration(getGrid());
     }
 
-    public boolean isChanged() {
-        return isBoardChanged;
-    }
-
-    public void setChanged(boolean isChanged) {
-        this.isBoardChanged = isChanged;
-    }
-
     public void setTurn(Colour turn) {
         this.turn = turn;
     }
@@ -75,7 +69,6 @@ public class Board {
             }
         }
         return grid;
-
     }
 
     public void setGrid(Piece[][] grid) {
@@ -84,7 +77,6 @@ public class Board {
                 chessBoard[i][j].setPiece(grid[i][j]);
             }
         }
-        isBoardChanged = true;
     }
 
     public Piece getPiece(Coordinate coordinates) {
@@ -93,7 +85,6 @@ public class Board {
         } catch (ArrayIndexOutOfBoundsException e) {
             return null;
         }
-
     }
 
     public Square getSquare(Coordinate coordinate) {
@@ -104,7 +95,7 @@ public class Board {
         }
     }
 
-    public Coordinate getCoordinatesOfPiece(Piece piece) {
+    public Coordinate getPieceCoordinate(Piece piece) {
         List<Coordinate> coordinates = new ArrayList<Coordinate>();
         Stream.of(chessBoard)
                 .forEach(row -> coordinates.add(Stream.of(row)
@@ -171,8 +162,6 @@ public class Board {
 
             restoreRotation();
         }
-
-        System.out.println(isBoardRotated);
     }
 
     public void goToNextPieceConfiguration() {
@@ -183,29 +172,44 @@ public class Board {
 
             restoreRotation();
         }
-        System.out.println(isBoardRotated);
     }
 
     public void movePiece(Piece piece, Coordinate toCoordinates) {
-        if (!isValidMove(piece, toCoordinates)) {
+        Move move = Move.getMove(piece, toCoordinates);
+        if (!isValidMove(move)) {
             return;
         }
-        Coordinate coordinatesOfPiece = getCoordinatesOfPiece(piece);
-        int distance = toCoordinates.subtract(coordinatesOfPiece).column();
-        if (piece instanceof King && Math.abs(distance) == 2) {
+        Coordinate pieceCoordinate = getPieceCoordinate(piece);
+
+        if (move.getType() == MoveType.CASTLE) {
+            int distance = toCoordinates.subtract(pieceCoordinate).column();
             boolean isLongCastle = toCoordinates.column() == 2 || toCoordinates.column() == 5;
             Rook rook = ((King) piece).getCastleRook(isLongCastle);
             Coordinate rookCoordinates = rook.getCoordinates();
-            Coordinate newRookCoordinates = coordinatesOfPiece.add(new Coordinate(0, (distance < 0 ? -1 : 1)));
+            Coordinate newRookCoordinates = pieceCoordinate.add(new Coordinate(0, (distance < 0 ? -1 : 1)));
 
             setPiece(rook, newRookCoordinates);
             removePiece(rookCoordinates);
         }
-        piece.registerMove();
+ 
+        if (move.getType() == MoveType.EN_PASSANT) {
+
+            // Bonden som skal tas er to ruter under der din bonde ender opp
+            Coordinate opponentPawnCoordinate = toCoordinates
+                    .addVector(Direction.DOWN.getDirectionVector(this))
+                    .addVector(Direction.DOWN.getDirectionVector(this));
+
+            System.out.println(opponentPawnCoordinate);
+            removePiece(opponentPawnCoordinate);
+        }
 
         setPiece(piece, toCoordinates);
-        removePiece(coordinatesOfPiece);
-        removeAllHighlights();
+        removePiece(pieceCoordinate);
+
+        resetRecentlyMovedPawns();
+        piece.registerMove();
+
+        resetSquareStates();
         Square.deselectSelectedSquare(this);
 
         pieceConfiguration = new PieceConfiguration(pieceConfiguration, getGrid(),
@@ -240,17 +244,13 @@ public class Board {
         return threatened;
     }
 
-    public boolean isValidMove(Piece piece, Coordinate toCoordinates) {
-        if (piece == null || checkNextBoardForCheck(piece, toCoordinates)) {
+    public boolean isValidMove(Move move) {
+        Piece piece = getPiece(move.getFromCoordinates());
+        if (piece == null || checkNextBoardForCheck(piece, move.getToCoordinates())) {
             return false;
         }
-        List<Move> moveList = piece.getValidMoves();
-        for (Move move : moveList) {
-            if (move.equals(new Move(getCoordinatesOfPiece(piece), toCoordinates))) {
-                return true;
-            }
-        }
-        return false;
+        return piece.getValidMoves().stream()
+                    .anyMatch(m -> move.equals(m));
     }
 
     public void selectSquare(Coordinate coordinates) {
@@ -268,7 +268,7 @@ public class Board {
         Square.deselectSelectedSquare(this);
     }
 
-    public void removeAllHighlights() {
+    public void resetSquareStates() {
         Stream.of(chessBoard)
                 .forEach(row -> Stream.of(row)
                         .filter(square -> selectedSquare == null || selectedSquare != square)
@@ -292,7 +292,6 @@ public class Board {
                 chessBoard[i][j].setPiece(gridCopy[i][j]);
             }
         }
-        isBoardChanged = true;
     }
 
     public boolean isKingMated(boolean stalemate) {
@@ -301,10 +300,16 @@ public class Board {
     }
 
     public boolean isSquareThreatened(Square square) {
+        // Da denne metoden benytter seg av å midlertidig plassere en brikke og deretter
+        // fjerne den, må den sjekke om ruten er tom fra før av
+        // Hvis den ikke er tom, vil den fjerne en brikke (som ikke er ønsket)
+        // Dette betyr denne ikke kan sjekke om en okkupert rute er truet, men det er en
+        // funksjonalitet som ikke er relevant for koden
+
         if (square.getPiece() != null)
             return false;
-        King tempKing = new King(turn, this);
 
+        King tempKing = new King(turn, this);
         square.setPiece(tempKing);
         boolean threatened = tempKing.isThreatened();
         square.removePiece();
@@ -349,23 +354,20 @@ public class Board {
     }
 
     private King getKing(Colour colour) {
-        for (Piece[] row : getGrid()) {
-            for (Piece piece : row) {
-                if (piece != null && piece.getColour() == colour && piece instanceof King)
-                    return (King) piece;
-            }
-        }
-        return null;
+        return Stream.of(getGrid())
+            .flatMap(row -> Stream.of(row))
+            .filter(piece -> piece != null && piece.getColour() == colour && piece instanceof King)
+            .map(piece -> ((King) piece))
+            .findFirst()
+            .orElse(null);
     }
 
     private void setPiece(Piece piece, Coordinate toCoordinates) {
         getChessBoard()[toCoordinates.row()][toCoordinates.column()].setPiece(piece);
-        isBoardChanged = true;
     }
 
     private void removePiece(Coordinate coordinates) {
         getChessBoard()[coordinates.row()][coordinates.column()].setPiece(null);
-        isBoardChanged = true;
     }
 
     private void mitigatedMovePiece(Piece piece, Coordinate toCoordinates) {
@@ -434,6 +436,13 @@ public class Board {
 
             rotateBoard();
         }
+    }
+
+    private void resetRecentlyMovedPawns() {
+        Stream.of(getGrid())
+            .flatMap(row -> Stream.of(row))
+            .filter(piece -> piece instanceof Pawn)
+            .forEach(piece -> ((Pawn) piece).resetRecentlyMovedTwoSquares());
     }
 
     @Override

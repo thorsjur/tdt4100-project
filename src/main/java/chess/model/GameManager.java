@@ -8,22 +8,19 @@ public class GameManager {
 
 
     public void startNewGame(String playerOneName, String playerTwoName, boolean boardRotationEnabled) {
-        // TODO: Implementere navn
-        game = new Game();
+        game = new Game(playerOneName, playerTwoName);
         game.getBoard().setBoardRotation(boardRotationEnabled);
 
         this.displayModeEnabled = false;
     }
 
     public void initializeGameFromPC(Colour winner, PieceConfiguration pieceConfiguration) {
+        Game prevGame = game;
         game = new Game(winner, pieceConfiguration);
+        game.setPlayerOneName(prevGame.getPlayerOneName());
+        game.setPlayerTwoName(prevGame.getPlayerTwoName());
 
-        if (winner != null) {
-            displayModeEnabled = true;
-        } else {
-            displayModeEnabled = false;
-        }
-
+        displayModeEnabled = winner != null;
         game.getBoard().setBoardRotation(boardRotationEnabled);
     }
 

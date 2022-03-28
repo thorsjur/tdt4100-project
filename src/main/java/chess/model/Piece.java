@@ -1,6 +1,7 @@
 package chess.model;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import chess.model.Board.Coordinate;
 
@@ -47,17 +48,13 @@ public abstract class Piece {
     public abstract List<Move> getValidMoves();
 
     public List<Move> getValidMoves(Move.MoveType type) {
-        List<Move> moveList = getValidMoves();
-        List<Move> moveListSpecificType = new ArrayList<>();
-        for (Move move : moveList) {
-            if (move.getType() == type)
-                moveListSpecificType.add(move);
-        }
-        return moveListSpecificType;
+        return getValidMoves().stream()
+                    .filter(move -> move.getType() == type)
+                    .collect(Collectors.toList());
     }
 
     public Coordinate getCoordinates() {
-        return board.getCoordinatesOfPiece(this);
+        return board.getPieceCoordinate(this);
     }
 
     public Board getBoard() {
@@ -69,11 +66,9 @@ public abstract class Piece {
     }
 
     public void highlightValidMoves() {
-        List<Move> moveList = getValidMoves();
-        for (Move move : moveList) {
-            if (!move.leadsToCheck(board))
-                move.highlightMove(board);
-        }
+        getValidMoves().stream()
+                .filter(move -> !move.leadsToCheck(board))
+                .forEach(move -> move.highlightMove(board));
     }
 
     public void registerMove() {
@@ -115,6 +110,9 @@ public abstract class Piece {
 
     public Colour getColour() {
         return colour;
+    }
 
+    public boolean equalsColourOf(Piece piece) {
+        return this.getColour() == piece.getColour();
     }
 }

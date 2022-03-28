@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Pawn",
+            "request": "launch",
+            "mainClass": "TDT4100_project/chess.model.Pawn",
+            "projectName": "tdt4100_v2022_prosjekt_boilerplate"
+        },
+        {
+            "type": "java",
             "name": "Launch Board",
             "request": "launch",
             "mainClass": "TDT4100_project/chess.model.Board",

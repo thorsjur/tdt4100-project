@@ -72,8 +72,8 @@ public class SettingsController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            // TODO: Implementere navn
-            gameManager.startNewGame("playerOneName", "playerTwoName", gameManager.isBoardRotationEnabled());
+            Game prevGame = gameManager.getGame();
+            gameManager.startNewGame(prevGame.getPlayerOneName(), prevGame.getPlayerTwoName(), gameManager.isBoardRotationEnabled());
             closeStage();
         }
     }

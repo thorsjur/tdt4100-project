@@ -1,6 +1,8 @@
 package chess.controller;
 
+import chess.io.GameReaderWriter;
 import chess.model.Colour;
+import chess.model.Game;
 import chess.model.GameManager;
 
 import javafx.application.Platform;
@@ -21,7 +23,7 @@ public class GameFinishedController {
     }
 
     @FXML
-    private void handleOnExitButtonClick(MouseEvent event) {
+    private void handleOnExitButtonClick() {
         // Flytter exit til hovedcontrolleren (ChessController)
         Platform.runLater(() -> {
             Platform.exit();
@@ -32,9 +34,15 @@ public class GameFinishedController {
     }
 
     @FXML
-    public void handleOnNewGameButtonClick(MouseEvent event) {
-        // TODO: implementere navn
-        gameManager.startNewGame("playerOneName", "playerTwoName", gameManager.isBoardRotationEnabled());
+    private void handleOnSaveButtonClick() {
+        GameReaderWriter grw = new GameReaderWriter();
+        grw.save(gameManager.getGame());
+    }
+
+    @FXML
+    public void handleOnNewGameButtonClick() {
+        Game prevGame = gameManager.getGame();
+        gameManager.startNewGame(prevGame.getPlayerOneName(), prevGame.getPlayerTwoName(), gameManager.isBoardRotationEnabled());
         closeStage();
     }
 

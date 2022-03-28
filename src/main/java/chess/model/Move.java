@@ -51,6 +51,9 @@ public class Move {
             case CASTLE:
                 state = Square.State.VIABLE_CASTLE_DESTINATION;
                 break;
+            case EN_PASSANT:
+                state = Square.State.VIABLE_EN_PASSANT;
+                break;
             default:
                 state = Square.State.DEFAULT;
                 break;
@@ -62,6 +65,13 @@ public class Move {
     public boolean leadsToCheck(Board board) {
         Piece piece = board.getPiece(fromCoordinates);
         return board.checkNextBoardForCheck(piece, toCoordinates);
+    }
+
+    public static Move getMove(Piece piece, Coordinate toCoordinates) {
+        return piece.getValidMoves().stream()
+            .filter(move -> move.getToCoordinates().equals(toCoordinates))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override

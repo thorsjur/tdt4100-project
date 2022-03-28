@@ -35,7 +35,7 @@ import chess.model.Game.GameData;
 *   - Brikkekonfigurasjoner
 * 
 * Hvert felt skilles med semi-kolon
-* EksempeL: 14:03:2022;Per Arne;Odd Per;WHITE;null;23;Brikkeconfig. (forklaring under)
+* EksempeL: 14:03:2022;Per Arne;Odd Per;WHITE;23;Brikkeconfig. (forklaring under)
 * 
 * Under brikkekonfigurasjoner ligger alle tidligere tilstander for brettet, og er en liste med tre bokstaver i serie x64 (8x8)
 * Før brikkenes tre bokstaver, er det én bit hvorvidt brettet er rotert og én bit som representerer hvem sin tur (Hvit -> 1, Sort -> 0)
@@ -91,14 +91,14 @@ public class GameReaderWriter implements ChessIO {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             dataList = reader.lines()
-                    .map(e -> e.split(";"))
+                    .map(e -> e.split(String.valueOf(SEPARATOR)))
                     .map(strArr -> new GameData(
                             strArr[0],
                             strArr[1],
                             strArr[2],
                             Colour.parseColour(strArr[3]),
                             Integer.parseInt(strArr[4]),
-                            buildPieceConfigurationFromDataArray(strArr[5].split(","))))
+                            buildPieceConfigurationFromDataArray(strArr[5].split(String.valueOf(SUB_SEPARATOR)))))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
@@ -126,6 +126,7 @@ public class GameReaderWriter implements ChessIO {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
             writer.append(fileAppend.toString() + "\n");
+            System.out.println("Game saved successfully ...");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -265,22 +266,5 @@ public class GameReaderWriter implements ChessIO {
         }
 
         return new PieceConfiguration(null, pieceGrid, turn, isRotated);
-    }
-
-    public static void main(String[] args) {
-        GameReaderWriter gameReaderWriter = new GameReaderWriter();
-        List<GameData> dataList = gameReaderWriter.getData(new File(DIRECTORY_PATH + DEFAULT_FILE_NAME));
-        List<Game> gameList = new ArrayList<>();
-
-        dataList.stream()
-            .forEach(e -> gameList.add(gameReaderWriter.load(e)));
-
-        for (Game game : gameList) {
-            System.out.println(game.getBoard());
-        }
-
-        
-
-        
     }
 }

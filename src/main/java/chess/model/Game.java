@@ -8,8 +8,8 @@ public class Game {
 
     private Board board;
     private LocalDateTime date = LocalDateTime.now();
-    private String playerOneName = "Player One";
-    private String playerTwoName = "Player Two";
+    private String playerOneName;
+    private String playerTwoName;
     private Colour turn = Colour.WHITE;
     private Colour winner;
     private boolean gameFinished;
@@ -23,7 +23,9 @@ public class Game {
             PieceConfiguration currentPieceConfiguration) {
     };
 
-    public Game() {
+    public Game(String playerOneName, String playerTwoName) {
+        this.playerOneName = playerOneName;
+        this.playerTwoName = playerTwoName;
         board = new Board(turn);
     }
 
@@ -70,6 +72,14 @@ public class Game {
 
     public String getPlayerTwoName() {
         return playerTwoName;
+    }
+
+    public void setPlayerOneName(String playerOneName) {
+        this.playerOneName = playerOneName;
+    }
+
+    public void setPlayerTwoName(String playerTwoName) {
+        this.playerTwoName = playerTwoName;
     }
 
     public Square getSelectedSquare() {
@@ -120,7 +130,7 @@ public class Game {
     }
 
     public boolean isValidMove(Piece piece, Coordinate toCoordinates) {
-        return board.isValidMove(piece, toCoordinates);
+        return board.isValidMove(new Move(piece.getCoordinates(), toCoordinates));
     }
 
     public boolean isFinished() {
@@ -143,6 +153,15 @@ public class Game {
         Piece selectedPiece = selectedSquare.getPiece();
         if (selectedPiece != null && isValidMove(selectedPiece, coordinates)) {
             makeMove(selectedPiece, coordinates);
+
+            // Hvis brettet roteres etter hver tur, vil selve ruten forholde seg på samme plass,
+            // men brikkene vil flyttes, så for å passe på at "rett" rute gis, må den invertere
+            // rad og rekke.
+            if (board.isBoardRotationEnabled()) {
+                Coordinate squareCoordinate = newSelectedSquare.getCoordinate();
+                return board.getSquare(new Coordinate(7 - squareCoordinate.row(), 7 - squareCoordinate.column()));
+            }
+
             return newSelectedSquare;
         }
 

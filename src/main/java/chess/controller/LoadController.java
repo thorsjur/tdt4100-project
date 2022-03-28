@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -115,7 +116,10 @@ public class LoadController {
             content = new HBox(leftContent, rightContent);
             content.getStyleClass().add("game-cell");
             players.getStyleClass().add("game-cell-names");
-            leftContent.getStyleClass().add("game-cell-vbox");
+
+            HBox.setHgrow(leftContent, Priority.ALWAYS);
+            HBox.setHgrow(rightContent, Priority.ALWAYS);
+
         }
 
         @Override

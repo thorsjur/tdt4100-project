@@ -2,13 +2,12 @@ package chess.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 import chess.io.GameReaderWriter;
-import chess.model.Board;
 import chess.model.Board.Coordinate;
 import chess.model.Colour;
 import chess.model.Game;
@@ -16,13 +15,13 @@ import chess.model.GameManager;
 import chess.model.Pawn;
 import chess.model.Piece;
 import chess.model.Square;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -85,6 +84,9 @@ public class ChessController {
                 case VIABLE_CASTLE_DESTINATION:
                     styleClass = "viable-castle-destination-square";
                     break;
+                case VIABLE_EN_PASSANT:
+                    styleClass = "viable-en-passant-square";
+                    break;
                 case SELECTED:
                     styleClass = "selected-square";
                     break;
@@ -139,22 +141,21 @@ public class ChessController {
                 .selectSquare(new Coordinate(GridPane.getRowIndex(clickedPane), GridPane.getColumnIndex(clickedPane)));
 
         Piece piece = clickedSquare.getPiece();
+        updateBoard();
+
         if (piece instanceof Pawn && ((Pawn)piece).canPromote()) {
-            pawnPromotion((Pawn) piece);
+            displayPawnPromotionWindow((Pawn) piece);
         }
 
         if (game.checkForMate()) {
             initializeGameFinished();
         }
-
-        
     }
 
     @FXML
     private void handleOnSaveButtonClick() {
         GameReaderWriter gameReaderWriter = new GameReaderWriter();
         gameReaderWriter.save(gameManager.getGame());
-        System.out.println("Game saved successfully");
     }
 
     @FXML
@@ -173,6 +174,9 @@ public class ChessController {
         settingsController.checkTrueCheckBoxes(gameManager.isBoardRotationEnabled());
         settingsStage.initModality(Modality.APPLICATION_MODAL);
         settingsStage.showAndWait();
+
+        updateBoard();
+
     }
 
     @FXML
@@ -180,7 +184,7 @@ public class ChessController {
         Stage loadingStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/Loading.fxml"));
 
-        loadingStage.setTitle("Loading");
+        loadingStage.setTitle("Load Game");
         
         loadingStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
         loadingStage.setScene(new Scene(loader.load()));
@@ -191,9 +195,11 @@ public class ChessController {
 
         loadingStage.initModality(Modality.APPLICATION_MODAL);
         loadingStage.showAndWait();
+
+        updateBoard();
     }
 
-    private void pawnPromotion(Pawn pawn) {
+    private void displayPawnPromotionWindow(Pawn pawn) {
         Stage pawnPromotionStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/PawnPromotion.fxml"));
         Scene scene;
@@ -217,24 +223,34 @@ public class ChessController {
         pawnPromotionStage.initStyle(StageStyle.TRANSPARENT);
         pawnPromotionStage.initModality(Modality.APPLICATION_MODAL);
         pawnPromotionStage.showAndWait();
+
+        updateBoard();
     }
 
     @FXML
     private void handleOnPreviousBoardButtonClick() {
         gameManager.goToPreviousBoard();
+
+        updateBoard();
     }
 
     @FXML
     private void handleOnNextBoardButtonClick() {
         gameManager.goToNextBoard();
+
+        updateBoard();
     }
 
     @FXML
     private void handleOnReloadButtonClick() {
         gameManager.goToCurrentBoard();
+
+        updateBoard();
     }
 
     private void initializeGameFinished() {
+        updateBoard();
+
         Stage finishStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/GameFinished.fxml"));
 
@@ -254,42 +270,45 @@ public class ChessController {
 
         finishStage.initModality(Modality.APPLICATION_MODAL);
         finishStage.showAndWait();
-        
+        updateBoard();
     }
 
     @FXML
     public void initialize() {
         gameManager = new GameManager();
 
-        // TODO: implementere navn
-        gameManager.startNewGame("playerOneName", "playerTwoName", false);
+        TextInputDialog[] nameDialogs = { new TextInputDialog(), new TextInputDialog() };
+        nameDialogs[0].setHeaderText("Enter the name of Player One: ");
+        nameDialogs[1].setHeaderText("Enter the name of Player Two: ");
+        List<String> names = new ArrayList<>();
 
+        for (TextInputDialog dialog : nameDialogs) {
+            dialog.setTitle("Set Name");
+            dialog.setContentText("Name:");
 
-        // Neste del delvis hentet fra https://edencoding.com/periodic-background-tasks/
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                Board board = gameManager.getBoard();
-                if (board.isChanged()) {
-                    Platform.runLater(() -> updateBoard());
-                    board.setChanged(false);
-                }
-            }
-        };
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(task, 0, 33L);
+            String result = dialog.showAndWait().orElse("Player");
+            names.add(result);
+        }
 
+        gameManager.startNewGame(names.get(0), names.get(1), false);
+        updateBoard();
+
+        // Brukes for å navigere frem eller tilbake med piltastene.
+        // JavaFX bruker som standard piltastene til å navigere knappene til
+        // brukergrensesnittet, så må "overkjøre" eventen
         root.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
+                
                 if (event.getCode() == KeyCode.LEFT) {
                     gameManager.goToPreviousBoard();
                 } else if (event.getCode() == KeyCode.RIGHT) {
                     gameManager.goToNextBoard();
                 }
+                updateBoard();
                 event.consume();
             }
         });
-
+        
     }
 }

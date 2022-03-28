@@ -10,7 +10,7 @@ public class Square {
     private State state = State.DEFAULT;
 
     public enum State {
-        DEFAULT, VIABLE_MOVE, VIABLE_TAKE, VIABLE_CASTLE_DESTINATION, SELECTED;
+        DEFAULT, VIABLE_MOVE, VIABLE_TAKE, VIABLE_CASTLE_DESTINATION, VIABLE_EN_PASSANT, SELECTED
     }
 
     public Square(Coordinate coordinate) {
@@ -54,7 +54,7 @@ public class Square {
 
         if (piece != null && piece.getColour() == board.getTurn()) {
             if (board.getSelectedSquare() != this) {
-                board.removeAllHighlights();
+                board.resetSquareStates();
                 board.selectSquare(this);
             }
             board.selectSquare(this);
@@ -62,7 +62,7 @@ public class Square {
             piece.highlightValidMoves();
         } else {
             deselectSelectedSquare(board);
-            board.removeAllHighlights();
+            board.resetSquareStates();
         }
 
     }
@@ -71,10 +71,9 @@ public class Square {
         Square selectedSquare = board.getSelectedSquare();
         if (selectedSquare != null) {
             selectedSquare.setState(State.DEFAULT);
-            ;
         }
         Square nullSquare = null;
-        board.removeAllHighlights();
+        board.resetSquareStates();
         board.selectSquare(nullSquare);
     }
 

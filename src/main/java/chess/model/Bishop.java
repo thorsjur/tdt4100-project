@@ -1,9 +1,7 @@
 package chess.model;
 
 import java.util.List;
-
 import chess.model.Board.Coordinate;
-
 import java.util.ArrayList;
 
 public class Bishop extends Piece {

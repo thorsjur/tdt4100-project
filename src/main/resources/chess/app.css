@@ -34,6 +34,10 @@
     -fx-background-color: #c90fc998;
 }
 
+.viable-en-passant-square {
+    -fx-background-color: #ff0040cc;
+}
+
 .board-border {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ffde00, #b43486);
     -fx-effect: dropshadow(gaussian, #0000003b, 25, 0.5, 0, 0);
@@ -154,10 +158,6 @@
     /* -fx-text-alignment: center; */
     -fx-font-family: arial;
     -fx-font-size: 12px;
-}
-
-.game-cell-vbox {
-    -fx-padding: 0 70px 0 0;
 }
 
 .game-cell-names {
