@@ -48,7 +48,7 @@ public class ChessController {
     @FXML
     private Button settingsButton; 
 
-    @FXML
+    @FXML   
     private Button previousBoardButton;
 
     @FXML
@@ -309,6 +309,5 @@ public class ChessController {
                 event.consume();
             }
         });
-        
     }
 }

@@ -4,11 +4,9 @@ import chess.io.GameReaderWriter;
 import chess.model.Colour;
 import chess.model.Game;
 import chess.model.GameManager;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class GameFinishedController {
@@ -54,11 +52,7 @@ public class GameFinishedController {
 
     public void setLabel() {
         Colour winner = gameManager.getWinner();
-        if (winner == null) {
-            winnerLabel.setText("Stalemate!");
-        } else {
-            winnerLabel.setText(winner.toString() + " wins!");
-        }
+        winnerLabel.setText((winner == null) ? "Stalemate!" : winner.toString() + " wins!");
     }
 
 }

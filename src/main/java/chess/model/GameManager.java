@@ -6,7 +6,6 @@ public class GameManager {
     private boolean boardRotationEnabled = false;
     private boolean displayModeEnabled = false;
 
-
     public void startNewGame(String playerOneName, String playerTwoName, boolean boardRotationEnabled) {
         game = new Game(playerOneName, playerTwoName);
         game.getBoard().setBoardRotation(boardRotationEnabled);
@@ -76,5 +75,4 @@ public class GameManager {
     public boolean isBoardRotationEnabled() {
         return game.getBoard().isBoardRotationEnabled();
     }
-
 }
