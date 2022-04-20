@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch BoardTest",
+            "request": "launch",
+            "mainClass": "TDT4100_project/model.BoardTest",
+            "projectName": "tdt4100_v2022_prosjekt_boilerplate"
+        },
+        {
+            "type": "java",
             "name": "Launch GameManager",
             "request": "launch",
             "mainClass": "TDT4100_project/chess.model.GameManager",

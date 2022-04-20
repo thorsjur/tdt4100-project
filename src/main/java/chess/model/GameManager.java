@@ -1,5 +1,10 @@
 package chess.model;
 
+import java.io.IOException;
+
+import chess.io.ChessIO;
+import chess.model.Board.Coordinate;
+
 public class GameManager {
 
     private Game game;
@@ -23,6 +28,15 @@ public class GameManager {
         game.getBoard().setBoardRotation(boardRotationEnabled);
     }
 
+    public void saveGame(ChessIO chessIO) {
+        try {
+            chessIO.save(game);
+            System.err.println("Game saved successfully ...");
+        } catch (IOException e) {
+            System.err.println("Unable to save game, please try again ...");
+        }
+    }
+
     public Board getBoard() {
         return game.getBoard();
     }
@@ -31,8 +45,26 @@ public class GameManager {
         return game;
     }
 
+    public Square getSquareAtCoordinate(int row, int col) {
+        return getBoard().getSquare(new Coordinate(row, col));
+    }
+
     public Colour getTurn() {
         return getBoard().getTurn();
+    }
+
+    public boolean isGameFinished() {
+        return game.checkForMate();
+    }
+
+    public boolean isPawnApplicableForPromotion(Piece piece) {
+        return (piece instanceof Pawn && ((Pawn) piece).canPromote());
+    }
+
+    public void promotePawn(Piece pawn, char pieceChar) {
+        if (!isPawnApplicableForPromotion(pawn)) throw new IllegalArgumentException("Feil brikke!");
+
+        getBoard().promotePawn((Pawn) pawn, pieceChar);
     }
 
     public Colour getWinner() {
@@ -75,4 +107,42 @@ public class GameManager {
     public boolean isBoardRotationEnabled() {
         return game.getBoard().isBoardRotationEnabled();
     }
+
+    public Square selectSquare(int row, int col) {
+        Coordinate coordinates = new Coordinate(row, col);
+        Board board = game.getBoard();
+        Square selectedSquare = board.getSelectedSquare();
+        Square newSelectedSquare = board.getSquare(coordinates);
+
+        if (selectedSquare == null) {
+            newSelectedSquare.selectSquare();
+            return newSelectedSquare;
+        }
+        if (selectedSquare == newSelectedSquare) {
+            Square.deselectSelectedSquare(getBoard());
+            return newSelectedSquare;
+        }
+
+        Piece selectedPiece = selectedSquare.getPiece();
+        if (selectedPiece != null && getGame().isValidMove(selectedPiece, coordinates)) {
+            getGame().makeMove(selectedPiece, coordinates);
+
+            // Hvis brettet roteres etter hver tur, vil selve ruten forholde seg på samme plass,
+            // men brikkene vil flyttes, så for å passe på at "rett" rute gis, må den invertere
+            // rad og rekke.
+            if (board.isBoardRotationEnabled()) {
+                Coordinate squareCoordinate = newSelectedSquare.getCoordinate();
+                return board.getSquare(new Coordinate(7 - squareCoordinate.row(), 7 - squareCoordinate.column()));
+            }
+
+            return newSelectedSquare;
+        }
+
+        Square.deselectSelectedSquare(getBoard());
+        newSelectedSquare.selectSquare();
+        return newSelectedSquare;
+
+    }
+
+
 }

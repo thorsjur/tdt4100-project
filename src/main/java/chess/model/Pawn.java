@@ -70,12 +70,18 @@ public class Pawn extends Piece {
         Direction[] directionArr = { Direction.UP_LEFT, Direction.UP_RIGHT };
         for (Direction direction : directionArr) {
             int[] directionVector = direction.getDirectionVector(board);
-            Coordinate opponentPieceCoordinate = getCoordinates()
+            Piece piece;
+            try {
+                Coordinate opponentPieceCoordinate = getCoordinates()
                     .addVector(directionVector)
                     .addVector(Direction.DOWN.getDirectionVector(board))
                     .addVector(Direction.DOWN.getDirectionVector(board));
-
-            Piece piece = board.getPiece(opponentPieceCoordinate);
+                    piece = board.getPiece(opponentPieceCoordinate);
+            } catch (IndexOutOfBoundsException e) {
+                piece = null;
+            }
+            
+            
             
             if (!(piece instanceof Pawn) || !((Pawn) piece).hasRecentlyMovedTwoSquares() || equalsColourOf(piece)) {
                 continue;

@@ -29,11 +29,13 @@ public class Knight extends Piece {
         Coordinate fromCoordinates = getCoordinates();
 
         for (int[] jump : jumps) {
-            Coordinate toCoordinates = fromCoordinates.addVector(jump);
-            if (toCoordinates.row() > 7 || toCoordinates.row() < 0 || toCoordinates.column() > 7
-                    || toCoordinates.column() < 0) {
+            Coordinate toCoordinates;
+            try {
+                toCoordinates = fromCoordinates.addVector(jump);
+            } catch (IndexOutOfBoundsException e) {
                 continue;
             }
+            
             Piece atPiece = board.getPiece(toCoordinates);
             if (atPiece == null) {
                 moveList.add(new Move(fromCoordinates, toCoordinates, Move.MoveType.MOVE));

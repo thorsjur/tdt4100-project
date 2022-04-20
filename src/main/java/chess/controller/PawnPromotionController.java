@@ -4,9 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import chess.model.Board;
 import chess.model.Pawn;
-
+import chess.model.Piece;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -17,7 +16,8 @@ import javafx.stage.Stage;
 
 public class PawnPromotionController {
 
-    Pawn pawn;
+    Piece pawn;
+    char pieceChar;
 
     @FXML HBox images;
 
@@ -26,12 +26,11 @@ public class PawnPromotionController {
         ImageView clickedImageView = (ImageView) event.getPickResult().getIntersectedNode();
         promotePawn(clickedImageView.getId());
 
-
         Stage stage = (Stage) clickedImageView.getScene().getWindow();
         stage.close();
     }
 
-    public void setPawn(Pawn pawn) {
+    public void setPawn(Piece pawn) {
         this.pawn = pawn;
     }
 
@@ -53,7 +52,6 @@ public class PawnPromotionController {
     }
 
     private void promotePawn(String clickedPiece) {
-        Board board = pawn.getBoard();
         char pieceChar;
 
         switch (clickedPiece) {
@@ -72,7 +70,11 @@ public class PawnPromotionController {
             default:
                 pieceChar = 'P';
         }
-        board.promotePawn(pawn, pieceChar);
+        this.pieceChar = pieceChar;
+    }
+
+    public char getReturn() {
+        return pieceChar;
     }
 
     

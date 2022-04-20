@@ -1,6 +1,7 @@
 package chess.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import chess.model.Game;
@@ -10,8 +11,8 @@ public interface ChessIO {
 
     public Game load(GameData data);
 
-    public List<GameData> getData(File file);
+    public List<GameData> getData(File file) throws IOException;
 
-    public void save(Game game);
+    public void save(Game game) throws IOException;
     
 }

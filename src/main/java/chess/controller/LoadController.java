@@ -1,6 +1,7 @@
 package chess.controller;
 
 import java.io.File;
+import java.io.IOException;
 
 import chess.io.GameReaderWriter;
 import chess.model.Colour;
@@ -50,15 +51,20 @@ public class LoadController {
     private void handleOnOpenFileButtonClick() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open File");
-        fileChooser.getExtensionFilters().add(new ExtensionFilter("Text files", "*.txt"));
-        fileChooser.setInitialDirectory(new File("src/main/resources/games/"));
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Text files", "*" + GameReaderWriter.FILE_EXTENSION));
+        fileChooser.setInitialDirectory(new File(GameReaderWriter.DIRECTORY_PATH));
 
         file = fileChooser.showOpenDialog((Stage) cancelButton.getScene().getWindow());
         GameReaderWriter grw = new GameReaderWriter();
 
         listViewGameData.getItems().clear();
-        for (GameData data : grw.getData(file)) {
-            listViewGameData.getItems().add(data);
+        try {
+            for (GameData data : grw.getData(file)) {
+                listViewGameData.getItems().add(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Problem loading file, please try again ...");
         }
 
     }
@@ -76,8 +82,14 @@ public class LoadController {
     private void initialize() {
         GameReaderWriter grw = new GameReaderWriter();
 
-        for (GameData data : grw.getData(null)) {
-            listViewGameData.getItems().add(data);
+        try {
+            for (GameData data : grw.getData(null)) {
+                listViewGameData.getItems().add(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            closeStage();
+            return;
         }
 
         listViewGameData.setCellFactory(new Callback<ListView<GameData>, ListCell<GameData>>() {

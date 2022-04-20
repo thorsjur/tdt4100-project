@@ -20,6 +20,13 @@ public class Board {
 
     public record Coordinate(int row, int column) {
 
+        public Coordinate(int row, int column) {
+            this.row = row;
+            this.column = column;
+
+            validateCoordinate(this);
+        }
+
         public Coordinate add(Coordinate coordinate) {
             return new Coordinate(row + coordinate.row(), column + coordinate.column());
         }
@@ -42,6 +49,12 @@ public class Board {
 
             Coordinate coordinate = (Coordinate) o;
             return row() == coordinate.row() && column() == coordinate.column();
+        }
+
+        private void validateCoordinate(Coordinate coord) throws IndexOutOfBoundsException {
+            if (coord.row() < 0 || coord.column() < 0 || coord.row() > 7 || coord.column() > 7) {
+                throw new IndexOutOfBoundsException("Invalid coordinate");
+            }
         }
     }
 
@@ -80,23 +93,18 @@ public class Board {
     }
 
     public Piece getPiece(Coordinate coordinates) {
-        try {
-            return getGrid()[coordinates.row()][coordinates.column()];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return null;
-        }
+        return getGrid()[coordinates.row()][coordinates.column()];
     }
 
     public Square getSquare(Coordinate coordinate) {
-        try {
-            return chessBoard[coordinate.row()][coordinate.column()];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return null;
-        }
+        return chessBoard[coordinate.row()][coordinate.column()];
     }
 
     public Coordinate getPieceCoordinate(Piece piece) {
-        List<Coordinate> coordinates = new ArrayList<Coordinate>();
+        if (piece == null) {
+            return null;
+        }
+        List<Coordinate> coordinates = new ArrayList<>();
         Stream.of(chessBoard)
                 .forEach(row -> coordinates.add(Stream.of(row)
                         .filter(square -> square.getPiece() == piece)
@@ -175,9 +183,9 @@ public class Board {
     }
 
     public void movePiece(Piece piece, Coordinate toCoordinates) {
-        Move move = Move.getMove(piece, toCoordinates);
-        if (!isValidMove(move)) {
-            return;
+        Move move = Move.getValidMove(piece, toCoordinates);
+        if (move == null || !isValidMove(move)) {
+            throw new IllegalArgumentException("This is not a valid move");
         }
         Coordinate pieceCoordinate = getPieceCoordinate(piece);
 
@@ -191,7 +199,7 @@ public class Board {
             setPiece(rook, newRookCoordinates);
             removePiece(rookCoordinates);
         }
- 
+
         if (move.getType() == MoveType.EN_PASSANT) {
 
             // Bonden som skal tas er to ruter under der din bonde ender opp
@@ -199,7 +207,6 @@ public class Board {
                     .addVector(Direction.DOWN.getDirectionVector(this))
                     .addVector(Direction.DOWN.getDirectionVector(this));
 
-            System.out.println(opponentPawnCoordinate);
             removePiece(opponentPawnCoordinate);
         }
 
@@ -212,8 +219,10 @@ public class Board {
         resetSquareStates();
         Square.deselectSelectedSquare(this);
 
+        nextTurn();
         pieceConfiguration = new PieceConfiguration(pieceConfiguration, getGrid(),
-                ((turn == Colour.WHITE) ? Colour.BLACK : Colour.WHITE), isBoardRotated);
+                turn, isBoardRotated);
+        
     }
 
     public boolean isBoardRotationEnabled() {
@@ -246,15 +255,13 @@ public class Board {
 
     public boolean isValidMove(Move move) {
         Piece piece = getPiece(move.getFromCoordinates());
-        if (piece == null || checkNextBoardForCheck(piece, move.getToCoordinates())) {
+        if (piece == null
+                || checkNextBoardForCheck(piece, move.getToCoordinates())
+                || getTurn() != piece.getColour()) {
             return false;
         }
         return piece.getValidMoves().stream()
-                    .anyMatch(m -> move.equals(m));
-    }
-
-    public void selectSquare(Coordinate coordinates) {
-        selectedSquare = getSquare(coordinates);
+                .anyMatch(m -> move.equals(m));
     }
 
     public void selectSquare(Square square) {
@@ -355,11 +362,11 @@ public class Board {
 
     private King getKing(Colour colour) {
         return Stream.of(getGrid())
-            .flatMap(row -> Stream.of(row))
-            .filter(piece -> piece != null && piece.getColour() == colour && piece instanceof King)
-            .map(piece -> ((King) piece))
-            .findFirst()
-            .orElse(null);
+                .flatMap(row -> Stream.of(row))
+                .filter(piece -> piece != null && piece.getColour() == colour && piece instanceof King)
+                .map(piece -> ((King) piece))
+                .findFirst()
+                .orElse(null);
     }
 
     private void setPiece(Piece piece, Coordinate toCoordinates) {
@@ -440,9 +447,9 @@ public class Board {
 
     private void resetRecentlyMovedPawns() {
         Stream.of(getGrid())
-            .flatMap(row -> Stream.of(row))
-            .filter(piece -> piece instanceof Pawn)
-            .forEach(piece -> ((Pawn) piece).resetRecentlyMovedTwoSquares());
+                .flatMap(row -> Stream.of(row))
+                .filter(piece -> piece instanceof Pawn)
+                .forEach(piece -> ((Pawn) piece).resetRecentlyMovedTwoSquares());
     }
 
     @Override
@@ -476,5 +483,5 @@ public class Board {
         }
         return newString;
     }
-    
+
 }

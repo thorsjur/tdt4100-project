@@ -8,11 +8,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import chess.io.GameReaderWriter;
-import chess.model.Board.Coordinate;
 import chess.model.Colour;
-import chess.model.Game;
 import chess.model.GameManager;
-import chess.model.Pawn;
 import chess.model.Piece;
 import chess.model.Square;
 import javafx.collections.ObservableList;
@@ -64,12 +61,10 @@ public class ChessController {
                 .filter(node -> node instanceof Pane)
                 .map(node -> (Pane) node)
                 .collect(Collectors.toMap(pane -> pane,
-                        pane -> gameManager.getBoard()
-                                .getSquare(new Coordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane)))));
+                        pane -> gameManager.getSquareAtCoordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane))));
 
         for (Pane pane : paneToSquareMap.keySet()) {
             ObservableList<String> styleClassList = pane.getStyleClass();
-
             styleClassList.clear();
 
             Square square = paneToSquareMap.get(pane);
@@ -109,8 +104,7 @@ public class ChessController {
                 .filter(node -> node instanceof Pane)
                 .map(node -> (Pane) node)
                 .collect(Collectors.toMap(pane -> (ImageView) pane.getChildren().get(0),
-                        pane -> gameManager.getBoard()
-                                .getSquare(new Coordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane)))));
+                        pane -> gameManager.getSquareAtCoordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane))));
 
         
         for (ImageView imageView : imageViewToSquareMap.keySet()) {
@@ -131,42 +125,47 @@ public class ChessController {
             return;
         }
 
-        Game game = gameManager.getGame();
         if (! gameManager.isAtCurrentBoard()) {
             gameManager.goToCurrentBoard();
         }
 
         Pane clickedPane = (Pane) event.getPickResult().getIntersectedNode().getParent();
-        Square clickedSquare = game
-                .selectSquare(new Coordinate(GridPane.getRowIndex(clickedPane), GridPane.getColumnIndex(clickedPane)));
+        Square clickedSquare = gameManager
+                .selectSquare(GridPane.getRowIndex(clickedPane), GridPane.getColumnIndex(clickedPane));
 
         Piece piece = clickedSquare.getPiece();
-        updateBoard();
 
-        if (piece instanceof Pawn && ((Pawn)piece).canPromote()) {
-            displayPawnPromotionWindow((Pawn) piece);
+        if (gameManager.isPawnApplicableForPromotion(piece)) {
+            char charPiece = displayPawnPromotionWindow(piece);
+            gameManager.promotePawn(piece, charPiece);
         }
-
-        if (game.checkForMate()) {
+        updateBoard();
+        
+        if (gameManager.isGameFinished()) {
             initializeGameFinished();
         }
+        
     }
 
     @FXML
     private void handleOnSaveButtonClick() {
-        GameReaderWriter gameReaderWriter = new GameReaderWriter();
-        gameReaderWriter.save(gameManager.getGame());
+        gameManager.saveGame(new GameReaderWriter());
     }
 
     @FXML
-    private void handleOnSettingsButtonClick(MouseEvent event) throws IOException {
+    private void handleOnSettingsButtonClick(MouseEvent event) {
         Stage settingsStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/Settings.fxml"));
 
         settingsStage.setTitle("Settings");
         
         settingsStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
-        settingsStage.setScene(new Scene(loader.load()));
+        try {
+            settingsStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.println("Something went wrong loading the FXML settings file: \n" + e.getMessage());
+            return;
+        }
         settingsStage.setResizable(false);
         SettingsController settingsController = loader.getController();
 
@@ -180,14 +179,19 @@ public class ChessController {
     }
 
     @FXML
-    private void handleOnLoadButtonClick(MouseEvent event) throws IOException {
+    private void handleOnLoadButtonClick(MouseEvent event) {
         Stage loadingStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/Loading.fxml"));
 
         loadingStage.setTitle("Load Game");
         
         loadingStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
-        loadingStage.setScene(new Scene(loader.load()));
+        try {
+            loadingStage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.println("Something went wrong loading the FXML settings file: \n" + e.getMessage());
+            return;
+        }
         loadingStage.setResizable(false);
 
         LoadController loadController = loader.getController();
@@ -199,7 +203,7 @@ public class ChessController {
         updateBoard();
     }
 
-    private void displayPawnPromotionWindow(Pawn pawn) {
+    private char displayPawnPromotionWindow(Piece pawn) {
         Stage pawnPromotionStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/PawnPromotion.fxml"));
         Scene scene;
@@ -210,7 +214,7 @@ public class ChessController {
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Can't read PawnPromotion.fxml");
-            return;
+            return '\0';
         }
         pawnPromotionStage.setResizable(false);
 
@@ -224,7 +228,7 @@ public class ChessController {
         pawnPromotionStage.initModality(Modality.APPLICATION_MODAL);
         pawnPromotionStage.showAndWait();
 
-        updateBoard();
+        return pawnPromotionController.getReturn();
     }
 
     @FXML

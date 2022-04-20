@@ -33,8 +33,7 @@ public class GameFinishedController {
 
     @FXML
     private void handleOnSaveButtonClick() {
-        GameReaderWriter grw = new GameReaderWriter();
-        grw.save(gameManager.getGame());
+        gameManager.saveGame(new GameReaderWriter());
     }
 
     @FXML

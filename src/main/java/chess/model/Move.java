@@ -67,7 +67,7 @@ public class Move {
         return board.checkNextBoardForCheck(piece, toCoordinates);
     }
 
-    public static Move getMove(Piece piece, Coordinate toCoordinates) {
+    public static Move getValidMove(Piece piece, Coordinate toCoordinates) {
         return piece.getValidMoves().stream()
             .filter(move -> move.getToCoordinates().equals(toCoordinates))
             .findFirst()

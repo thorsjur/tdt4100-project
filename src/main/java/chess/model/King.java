@@ -33,7 +33,7 @@ public class King extends Piece {
                     horizontalDifference = -horizontalDifference;
                 }
                 Move castle = new Move(getCoordinates(),
-                        getRelativeCoordinates(new Coordinate(0, horizontalDifference)),
+                        getRelativeCoordinates(new int[]{ 0, horizontalDifference }),
                         Move.MoveType.CASTLE);
                 moveList.add(castle);
             }
@@ -71,7 +71,7 @@ public class King extends Piece {
         // Trusler fra motstanders springere
         int[][] knightJumps = Knight.getJumpArray();
         for (int[] jump : knightJumps) {
-            Piece piece = getPieceRelativeToPosition(new Coordinate(jump[0], jump[1]));
+            Piece piece = getPieceRelativeToPosition(jump);
             if (piece != null && !this.equalsColourOf(piece) && piece instanceof Knight)
                 return true;
         }
@@ -103,7 +103,7 @@ public class King extends Piece {
                 horizontalDifference = (longCastle ? -4 : 3);
             }
         }
-        Piece rook = getPieceRelativeToPosition(new Coordinate(0, horizontalDifference));
+        Piece rook = getPieceRelativeToPosition(new int[]{ 0, horizontalDifference });
         return ((rook instanceof Rook) ? (Rook) rook : null);
     }
 
@@ -150,13 +150,13 @@ public class King extends Piece {
             directionCondition = (!turnIsWhite && !longCastle) || (turnIsWhite && longCastle);
         }
         int rookDiff = (longCastle ? 4 : 3);
-        Piece piece = getPieceRelativeToPosition(new Coordinate(0, (directionCondition ? -rookDiff : rookDiff)));
+        Piece piece = getPieceRelativeToPosition(new int[]{ 0, (directionCondition ? -rookDiff : rookDiff) });
 
         if (piece == null || !(piece instanceof Rook) || piece.hasMoved()) {
             return false;
         }
         for (int i = 1; i <= rookDiff - 1; i++) {
-            Coordinate toCoordinates = getRelativeCoordinates(new Coordinate(0, (directionCondition ? -i : i)));
+            Coordinate toCoordinates = getRelativeCoordinates(new int[]{ 0, (directionCondition ? -i : i) });
             Square passingSquare = board.getSquare(toCoordinates);
             Piece pieceAtSquare = passingSquare.getPiece();
             if (longCastle && pieceAtSquare == null && i == rookDiff - 1) {

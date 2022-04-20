@@ -92,7 +92,6 @@ public class Game {
 
     public void nextTurn() {
         turn = ((turn == Colour.WHITE) ? Colour.BLACK : Colour.WHITE);
-        board.nextTurn();
     }
 
     public void setTurn(Colour turn) {
@@ -137,39 +136,6 @@ public class Game {
         return gameFinished;
     }
 
-    public Square selectSquare(Coordinate coordinates) {
-        Square selectedSquare = board.getSelectedSquare();
-        Square newSelectedSquare = board.getSquare(coordinates);
-
-        if (selectedSquare == null) {
-            newSelectedSquare.selectSquare();
-            return newSelectedSquare;
-        }
-        if (selectedSquare == newSelectedSquare) {
-            Square.deselectSelectedSquare(getBoard());
-            return newSelectedSquare;
-        }
-
-        Piece selectedPiece = selectedSquare.getPiece();
-        if (selectedPiece != null && isValidMove(selectedPiece, coordinates)) {
-            makeMove(selectedPiece, coordinates);
-
-            // Hvis brettet roteres etter hver tur, vil selve ruten forholde seg på samme plass,
-            // men brikkene vil flyttes, så for å passe på at "rett" rute gis, må den invertere
-            // rad og rekke.
-            if (board.isBoardRotationEnabled()) {
-                Coordinate squareCoordinate = newSelectedSquare.getCoordinate();
-                return board.getSquare(new Coordinate(7 - squareCoordinate.row(), 7 - squareCoordinate.column()));
-            }
-
-            return newSelectedSquare;
-        }
-
-        Square.deselectSelectedSquare(getBoard());
-        newSelectedSquare.selectSquare();
-        return newSelectedSquare;
-
-    }
 
     public boolean canPromotePawn(Square square) {
         Piece piece = square.getPiece();

@@ -79,32 +79,37 @@ public abstract class Piece {
         return hasMoved;
     }
 
-    public Coordinate getRelativeCoordinates(Coordinate coordinateDifference) {
-        return getCoordinates().add(coordinateDifference);
+    protected Coordinate getRelativeCoordinates(int[] vector) throws IndexOutOfBoundsException {
+        return getCoordinates().addVector(vector);
     }
 
-    public Piece getPieceRelativeToPosition(Coordinate coordinateDifference) {
-        Coordinate relativeCoordinates = getRelativeCoordinates(coordinateDifference);
-        return board.getPiece(relativeCoordinates);
+    public Piece getPieceRelativeToPosition(int[] vector) {
+        try {
+            Coordinate relativeCoordinates = getRelativeCoordinates(vector);
+            return board.getPiece(relativeCoordinates);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
 
-    public List<Move> getUnidirectionalMoves(Direction direction, Coordinate currentCoordinates, boolean take) {
+    public List<Move> getUnidirectionalMoves(Direction direction, Coordinate currentCoordinates, boolean canTake) {
         int[] directionVector = direction.getDirectionVector(board);
-        Coordinate toCoordinates = currentCoordinates.addVector(directionVector);
-
-        if (toCoordinates.row() > 7 || toCoordinates.row() < 0 || toCoordinates.column() > 7
-                || toCoordinates.column() < 0) {
+        Coordinate toCoordinates;
+        try {
+            toCoordinates = currentCoordinates.addVector(directionVector);
+        } catch (IndexOutOfBoundsException e) {
             return new ArrayList<Move>();
         }
+
         Piece atPiece = board.getPiece(toCoordinates);
-        if (atPiece != null && (!take || atPiece.getColour() == colour)) {
+        if (atPiece != null && (!canTake || atPiece.getColour() == colour)) {
             return new ArrayList<Move>();
-        } else if (take && atPiece != null && atPiece.getColour() != colour) {
+        } else if (canTake && atPiece != null && atPiece.getColour() != colour) {
             return new ArrayList<Move>(Arrays.asList(new Move(getCoordinates(), toCoordinates, Move.MoveType.TAKE)));
         }
         List<Move> moveList = new ArrayList<>(
                 Arrays.asList(new Move(getCoordinates(), toCoordinates, Move.MoveType.MOVE)));
-        moveList.addAll(getUnidirectionalMoves(direction, toCoordinates, take));
+        moveList.addAll(getUnidirectionalMoves(direction, toCoordinates, canTake));
         return moveList;
     }
 

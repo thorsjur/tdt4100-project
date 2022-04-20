@@ -84,13 +84,13 @@ public class GameReaderWriter implements ChessIO {
     }
 
     @Override
-    public List<GameData> getData(File file) {
+    public List<GameData> getData(File file) throws IOException{
         if (file == null || !file.exists())
             file = new File(DIRECTORY_PATH + DEFAULT_FILE_NAME);
         List<GameData> dataList;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            dataList = reader.lines()
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        dataList = reader.lines()
                     .map(e -> e.split(String.valueOf(SEPARATOR)))
                     .map(strArr -> new GameData(
                             strArr[0],
@@ -100,15 +100,13 @@ public class GameReaderWriter implements ChessIO {
                             Integer.parseInt(strArr[4]),
                             buildPieceConfigurationFromDataArray(strArr[5].split(String.valueOf(SUB_SEPARATOR)))))
                     .collect(Collectors.toList());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        reader.close();
+
         return dataList;
     }
 
     @Override
-    public void save(Game game) {
+    public void save(Game game) throws IOException {
         StringBuilder fileAppend = new StringBuilder();
         game.getBoard().goToCurrentPieceConfiguration();
 
@@ -124,12 +122,9 @@ public class GameReaderWriter implements ChessIO {
 
         fileAppend.append(getBoardConfigurationsAsString(game));
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
-            writer.append(fileAppend.toString() + "\n");
-            System.out.println("Game saved successfully ...");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
+        writer.append(fileAppend.toString() + "\n");
+        writer.close();
     }
 
     private String getBoardConfigurationsAsString(Game game) {
