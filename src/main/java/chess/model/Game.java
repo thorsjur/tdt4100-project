@@ -46,8 +46,6 @@ public class Game {
         for (Piece piece : currentPieceConfiguration) {
             if (piece != null) piece.setBoard(board);
         }
-
-        
     }
 
     public Board getBoard() {
@@ -113,8 +111,8 @@ public class Game {
     }
 
     public boolean checkForMate() {
-        boolean checkmated = board.isKingMated(false);
-        boolean stalemated = board.isKingMated(true);
+        boolean checkmated = board.isKingMated(turn, false);
+        boolean stalemated = board.isKingMated(turn, true);
 
         if (checkmated || stalemated) {
             gameFinished = true;

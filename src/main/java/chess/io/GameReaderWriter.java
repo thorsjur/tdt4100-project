@@ -3,6 +3,7 @@ package chess.io;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,18 +65,37 @@ public class GameReaderWriter implements ChessIO {
     public static final char SEPARATOR = ';';
     public static final char SUB_SEPARATOR = ',';
 
-    private String fileName;
+    private File file;
 
     public GameReaderWriter() {
-        this.fileName = DIRECTORY_PATH + DEFAULT_FILE_NAME;
+        String filePath = DIRECTORY_PATH + DEFAULT_FILE_NAME;
+        file = new File(filePath);
     }
 
     public GameReaderWriter(String fileName) {
-        this.fileName = DIRECTORY_PATH + fileName;
+        String filePath = DIRECTORY_PATH + fileName;
 
-        if (!this.fileName.endsWith(FILE_EXTENSION)) {
-            this.fileName += FILE_EXTENSION;
+        if (!fileName.endsWith(FILE_EXTENSION)) {
+            if (fileName.contains(".")) {
+                throw new IllegalArgumentException("Invalid file extension");
+            }
+            filePath += FILE_EXTENSION;
         }
+        file = new File(filePath);
+    }
+
+    public GameReaderWriter(File file) {
+        if (file == null) {
+            throw new IllegalArgumentException("Null argument not permitted");
+        } else if (!file.getPath().endsWith(FILE_EXTENSION)) {
+            throw new IllegalArgumentException("Only .txt files are permitted");
+        }
+
+        this.file = file;
+    }
+
+    public String getFilePath() {
+        return this.file.getPath();
     }
 
     @Override
@@ -85,12 +105,15 @@ public class GameReaderWriter implements ChessIO {
 
     @Override
     public List<GameData> getData(File file) throws IOException{
-        if (file == null || !file.exists())
-            file = new File(DIRECTORY_PATH + DEFAULT_FILE_NAME);
-        List<GameData> dataList;
-
+        if (file == null || !file.exists()) {
+            file = this.file;
+            if (!file.exists()) {
+                throw new FileNotFoundException("No default file found");
+            }
+        }
+        
         BufferedReader reader = new BufferedReader(new FileReader(file));
-        dataList = reader.lines()
+        List<GameData> dataList = reader.lines()
                     .map(e -> e.split(String.valueOf(SEPARATOR)))
                     .map(strArr -> new GameData(
                             strArr[0],
@@ -107,6 +130,9 @@ public class GameReaderWriter implements ChessIO {
 
     @Override
     public void save(Game game) throws IOException {
+        if (game == null) { 
+            throw new IllegalArgumentException("Null argument not permitted");
+        }
         StringBuilder fileAppend = new StringBuilder();
         game.getBoard().goToCurrentPieceConfiguration();
 
@@ -122,7 +148,7 @@ public class GameReaderWriter implements ChessIO {
 
         fileAppend.append(getBoardConfigurationsAsString(game));
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
         writer.append(fileAppend.toString() + "\n");
         writer.close();
     }

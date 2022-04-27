@@ -77,6 +77,12 @@ public class PieceConfiguration implements Iterable<Piece>{
         return currentConfiguration;
     }
 
+    public PieceConfiguration getRoot() {
+        PieceConfiguration root = this;
+        while (root.hasPreviousGame()) root = root.getPreviousGame();
+        return root;
+    }
+
     public boolean isBoardRotated() {
         return isBoardRotated;
     }

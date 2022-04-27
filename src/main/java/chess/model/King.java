@@ -45,27 +45,27 @@ public class King extends Piece {
     public boolean isThreatened() {
         // Trusler fra bønder
         Direction[] directions = { Direction.UP_LEFT, Direction.UP_RIGHT };
-        Class<?>[] classList = { Pawn.class };
-        if (isThreatenedByPiece(directions, classList, true))
+        Class<?>[] classArray = { Pawn.class };
+        if (isThreatenedByPiece(directions, classArray, true))
             return true;
 
         // Trusler fra motstanders konge
         directions = Direction.values();
-        classList = new Class<?>[] { King.class };
-        if (isThreatenedByPiece(directions, classList, true))
+        classArray = new Class<?>[] { King.class };
+        if (isThreatenedByPiece(directions, classArray, true))
             return true;
 
         // Trusler fra motstanders dronning og tårn
         directions = new Direction[] { Direction.UP, Direction.DOWN, Direction.RIGHT, Direction.LEFT };
-        classList = new Class<?>[] { Rook.class, Queen.class };
-        if (isThreatenedByPiece(directions, classList, false))
+        classArray = new Class<?>[] { Rook.class, Queen.class };
+        if (isThreatenedByPiece(directions, classArray, false))
             return true;
 
         // Trusler fra motstanders løper og dronning
         directions = new Direction[] { Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_LEFT,
                 Direction.DOWN_RIGHT };
-        classList = new Class<?>[] { Bishop.class, Queen.class };
-        if (isThreatenedByPiece(directions, classList, false))
+        classArray = new Class<?>[] { Bishop.class, Queen.class };
+        if (isThreatenedByPiece(directions, classArray, false))
             return true;
 
         // Trusler fra motstanders springere
@@ -92,6 +92,7 @@ public class King extends Piece {
     }
 
     public Rook getCastleRook(boolean longCastle) {
+        if (hasMoved()) return null;
         Colour turn = board.getTurn();
         int horizontalDifference;
         if (turn == Colour.WHITE) {
@@ -129,10 +130,10 @@ public class King extends Piece {
         return null;
     }
 
-    private boolean isThreatenedByPiece(Direction[] directions, Class<?>[] classList, boolean singleMove) {
+    private boolean isThreatenedByPiece(Direction[] directions, Class<?>[] classArray, boolean singleMove) {
         for (Direction direction : directions) {
             Piece piece = getOpponentPiece(direction, singleMove);
-            for (Class<?> cls : classList) {
+            for (Class<?> cls : classArray) {
                 if (piece != null && piece.getClass() == cls)
                     return true;
             }

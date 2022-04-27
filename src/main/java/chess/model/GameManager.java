@@ -24,7 +24,7 @@ public class GameManager {
         game.setPlayerOneName(prevGame.getPlayerOneName());
         game.setPlayerTwoName(prevGame.getPlayerTwoName());
 
-        displayModeEnabled = winner != null;
+        displayModeEnabled = (winner != null);
         game.getBoard().setBoardRotation(boardRotationEnabled);
     }
 

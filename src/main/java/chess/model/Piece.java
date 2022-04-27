@@ -65,6 +65,10 @@ public abstract class Piece {
         this.board = board;
     }
 
+    public Colour getColour() {
+        return colour;
+    }
+
     public void highlightValidMoves() {
         getValidMoves().stream()
                 .filter(move -> !move.leadsToCheck(board))
@@ -83,7 +87,7 @@ public abstract class Piece {
         return getCoordinates().addVector(vector);
     }
 
-    public Piece getPieceRelativeToPosition(int[] vector) {
+    protected Piece getPieceRelativeToPosition(int[] vector) {
         try {
             Coordinate relativeCoordinates = getRelativeCoordinates(vector);
             return board.getPiece(relativeCoordinates);
@@ -92,7 +96,7 @@ public abstract class Piece {
         }
     }
 
-    public List<Move> getUnidirectionalMoves(Direction direction, Coordinate currentCoordinates, boolean canTake) {
+    protected List<Move> getUnidirectionalMoves(Direction direction, Coordinate currentCoordinates, boolean canTake) {
         int[] directionVector = direction.getDirectionVector(board);
         Coordinate toCoordinates;
         try {
@@ -113,11 +117,7 @@ public abstract class Piece {
         return moveList;
     }
 
-    public Colour getColour() {
-        return colour;
-    }
-
-    public boolean equalsColourOf(Piece piece) {
+    protected boolean equalsColourOf(Piece piece) {
         return this.getColour() == piece.getColour();
     }
 }

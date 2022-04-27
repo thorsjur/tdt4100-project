@@ -63,7 +63,7 @@ public class Pawn extends Piece {
     }
 
     private List<Move> getEnPassantMoves() {
-        // Først finner ut om UP_LEFT eller UP_RIGHT, og 2x DOWN har nettopp flyttet
+        // Først finner ut om UP_LEFT eller UP_RIGHT, og 1x DOWN har nettopp flyttet 2
         // Hvis de har, gir det et lovlig flytt UP_LEFT/UP_RIGHT
         List<Move> enPassantList = new ArrayList<Move>();
 
@@ -74,14 +74,11 @@ public class Pawn extends Piece {
             try {
                 Coordinate opponentPieceCoordinate = getCoordinates()
                     .addVector(directionVector)
-                    .addVector(Direction.DOWN.getDirectionVector(board))
                     .addVector(Direction.DOWN.getDirectionVector(board));
-                    piece = board.getPiece(opponentPieceCoordinate);
+                piece = board.getPiece(opponentPieceCoordinate);
             } catch (IndexOutOfBoundsException e) {
                 piece = null;
             }
-            
-            
             
             if (!(piece instanceof Pawn) || !((Pawn) piece).hasRecentlyMovedTwoSquares() || equalsColourOf(piece)) {
                 continue;

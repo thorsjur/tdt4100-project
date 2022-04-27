@@ -61,7 +61,6 @@ public class Board {
     public Board(Colour turn) {
         this.initializeBoard();
         this.turn = turn;
-        this.isBoardRotationEnabled = true;
 
         pieceConfiguration = new PieceConfiguration(getGrid());
     }
@@ -104,18 +103,14 @@ public class Board {
         if (piece == null) {
             return null;
         }
-        List<Coordinate> coordinates = new ArrayList<>();
-        Stream.of(chessBoard)
-                .forEach(row -> coordinates.add(Stream.of(row)
-                        .filter(square -> square.getPiece() == piece)
-                        .map(square -> square.getCoordinate())
-                        .findFirst()
-                        .orElse(null)));
-
-        return coordinates.stream()
-                .filter(e -> e != null)
+        
+        return Stream.of(chessBoard)
+                .flatMap(row -> Stream.of(row))
+                .filter(square -> square.getPiece() == piece)
+                .map(square -> square.getCoordinate())
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new IllegalStateException("This piece is not on the board"));
+
     }
 
     public Colour getTurn() {
@@ -190,11 +185,11 @@ public class Board {
         Coordinate pieceCoordinate = getPieceCoordinate(piece);
 
         if (move.getType() == MoveType.CASTLE) {
-            int distance = toCoordinates.subtract(pieceCoordinate).column();
+            int distance = toCoordinates.column() - pieceCoordinate.column();
             boolean isLongCastle = toCoordinates.column() == 2 || toCoordinates.column() == 5;
             Rook rook = ((King) piece).getCastleRook(isLongCastle);
             Coordinate rookCoordinates = rook.getCoordinates();
-            Coordinate newRookCoordinates = pieceCoordinate.add(new Coordinate(0, (distance < 0 ? -1 : 1)));
+            Coordinate newRookCoordinates = pieceCoordinate.addVector(new int[] { 0, (distance < 0 ? -1 : 1) });
 
             setPiece(rook, newRookCoordinates);
             removePiece(rookCoordinates);
@@ -202,9 +197,8 @@ public class Board {
 
         if (move.getType() == MoveType.EN_PASSANT) {
 
-            // Bonden som skal tas er to ruter under der din bonde ender opp
+            // Bonden som skal tas er én ruter under der din bonde ender opp
             Coordinate opponentPawnCoordinate = toCoordinates
-                    .addVector(Direction.DOWN.getDirectionVector(this))
                     .addVector(Direction.DOWN.getDirectionVector(this));
 
             removePiece(opponentPawnCoordinate);
@@ -254,13 +248,15 @@ public class Board {
     }
 
     public boolean isValidMove(Move move) {
+        if (move == null) {
+            throw new IllegalArgumentException("Move is null");
+        }
         Piece piece = getPiece(move.getFromCoordinates());
-        if (piece == null
-                || checkNextBoardForCheck(piece, move.getToCoordinates())
-                || getTurn() != piece.getColour()) {
+        if (piece == null || getTurn() != piece.getColour()) {
             return false;
         }
         return piece.getValidMoves().stream()
+                .filter(m -> !m.leadsToCheck(this))
                 .anyMatch(m -> move.equals(m));
     }
 
@@ -301,9 +297,8 @@ public class Board {
         }
     }
 
-    public boolean isKingMated(boolean stalemate) {
-        King king = getKing(getTurn());
-        return king.isMated(stalemate);
+    public boolean isKingMated(Colour turn, boolean stalemate) {
+        return getKing(turn).isMated(stalemate);
     }
 
     public boolean isSquareThreatened(Square square) {
@@ -326,7 +321,7 @@ public class Board {
 
     public void promotePawn(Pawn pawn, char piece) {
         if (!pawn.canPromote()) {
-            return;
+            throw new IllegalStateException("Bonden kan ikke promoteres");
         }
         Colour pawnColour = pawn.getColour();
         Piece newPiece;

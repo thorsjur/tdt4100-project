@@ -4,7 +4,7 @@ import chess.model.Board.Coordinate;
 
 public class Move {
 
-    enum MoveType {
+    public enum MoveType {
         TAKE,
         MOVE,
         EN_PASSANT,
