@@ -49,8 +49,8 @@ public abstract class Piece {
 
     public List<Move> getValidMoves(Move.MoveType type) {
         return getValidMoves().stream()
-                    .filter(move -> move.getType() == type)
-                    .collect(Collectors.toList());
+                .filter(move -> move.getType() == type)
+                .collect(Collectors.toList());
     }
 
     public Coordinate getCoordinates() {
@@ -96,6 +96,10 @@ public abstract class Piece {
         }
     }
 
+    /*
+     * Universell metode som brukes av alle underklasser (med unntak av springer)
+     * til å hente en liste over alle mulige flytt i én viss retning
+     */
     protected List<Move> getUnidirectionalMoves(Direction direction, Coordinate currentCoordinates, boolean canTake) {
         int[] directionVector = direction.getDirectionVector(board);
         Coordinate toCoordinates;

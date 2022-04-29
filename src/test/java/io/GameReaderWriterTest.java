@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import org.junit.jupiter.api.AfterAll;
@@ -47,7 +49,9 @@ public class GameReaderWriterTest {
     public void testConstructor() {
         GameReaderWriter grw1 = new GameReaderWriter();
         final String FILE_PATH = "src\\main\\resources\\games\\games.txt";
-        assertTrue(grw1.getFilePath().equals(FILE_PATH));
+        final String MAC_FILE_PATH = "src/main/resources/games/games.txt";
+        assertTrue(grw1.getFilePath().equals(FILE_PATH)
+                || grw1.getFilePath().equals(MAC_FILE_PATH)); // Tilfelle sensor har Mac
 
         assertThrows(IllegalArgumentException.class, () -> new GameReaderWriter("test.png"));
         GameReaderWriter grw2 = new GameReaderWriter("test");
@@ -64,8 +68,21 @@ public class GameReaderWriterTest {
     @Test
     public void saveTest() throws IOException {
         assertThrows(IllegalArgumentException.class, () -> grw.save(null));
+        
+        grw.save(getNewGame());
+        String a = "";
+        try (BufferedReader br = new BufferedReader(new FileReader(tempFile))) {
+            a = br.readLine().split(";")[5];
+            if (a.contains(",")) {
+                throw new IllegalStateException("Noe har gått galt under lagring");
+            }
+        }
+        assertTrue(a.equals(getNewBoardAsStringRepresentation()));
+        
         grw.save(expectedGame1);
         grw.save(expectedGame2);
+
+        
     }
 
     @Test
@@ -73,10 +90,10 @@ public class GameReaderWriterTest {
         assertDoesNotThrow(() -> grw.getData(null));
         assertDoesNotThrow(() -> grw.getData(new File("NOT A REAL PATH")));
 
-        Game actualGame1 = grw.load(grw.getData(tempFile).get(0));
+        Game actualGame1 = grw.load(grw.getData(tempFile).get(1));
         assertTrue(compareGames(expectedGame1, actualGame1));
 
-        Game actualGame2 = grw.load(grw.getData(tempFile).get(1));
+        Game actualGame2 = grw.load(grw.getData(tempFile).get(2));
         assertTrue(compareGames(expectedGame2, actualGame2));
     }
 
@@ -182,14 +199,26 @@ public class GameReaderWriterTest {
         Piece blackQueen = board.getPiece(new Coordinate(0, 3));
 
         Object[][] moveInfo = {
-            { whiteRightBishopPawn, new Coordinate(4, 5) },
-            { blackKingPawn, new Coordinate(2, 4) },
-            { whiteRightKnightPawn, new Coordinate(4, 6) },
-            { blackQueen, new Coordinate(4, 7) }
-            
+                { whiteRightBishopPawn, new Coordinate(4, 5) },
+                { blackKingPawn, new Coordinate(2, 4) },
+                { whiteRightKnightPawn, new Coordinate(4, 6) },
+                { blackQueen, new Coordinate(4, 7) }
+
         };
         for (Object[] move : moveInfo) {
             board.movePiece((Piece) move[0], (Coordinate) move[1]);
         }
+    }
+
+    private String getNewBoardAsStringRepresentation() {
+        return "01" 
+                + "00R00N00B00Q00K00B00N00R" 
+                + "00P00P00P00P00P00P00P00P"
+                + "000000000000000000000000" 
+                + "000000000000000000000000" 
+                + "000000000000000000000000" 
+                + "000000000000000000000000"
+                + "10P10P10P10P10P10P10P10P" 
+                + "10R10N10B10Q10K10B10N10R";
     }
 }

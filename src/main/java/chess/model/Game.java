@@ -20,8 +20,8 @@ public class Game {
             String playerTwoName,
             Colour winner,
             int moves,
-            PieceConfiguration currentPieceConfiguration) {
-    };
+            PieceConfiguration currentPieceConfiguration)
+    {};
 
     public Game(String playerOneName, String playerTwoName) {
         this.playerOneName = playerOneName;

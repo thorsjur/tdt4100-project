@@ -3,7 +3,7 @@ package chess.model;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class PieceConfiguration implements Iterable<Piece>{
+public class PieceConfiguration implements Iterable<Piece> {
 
     private Piece[][] pieceGrid;
     private PieceConfiguration nextGame;

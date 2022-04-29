@@ -1,13 +1,11 @@
 package chess.controller;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import chess.model.Pawn;
 import chess.model.Piece;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -19,7 +17,8 @@ public class PawnPromotionController {
     Piece pawn;
     char pieceChar;
 
-    @FXML HBox images;
+    @FXML
+    HBox images;
 
     @FXML
     public void handleOnPieceClick(MouseEvent event) {
@@ -35,18 +34,16 @@ public class PawnPromotionController {
     }
 
     public void initializePieces() {
-        List<ImageView> imageList = new ArrayList<ImageView>();
-        
-        for (Node child : images.getChildren()) {
-            if (child instanceof ImageView) {
-                imageList.add((ImageView) child);
-            }
-        }
+        List<ImageView> imageViewList = images.getChildren().stream()
+                .filter(child -> child instanceof ImageView)
+                .map(child -> (ImageView) child)
+                .collect(Collectors.toList());
+
         String[] imageEndPaths = { "Queen", "Rook", "Knight", "Bishop" };
         for (int i = 0; i < 4; i++) {
             String colour = pawn.getColour().toString();
             String imagePath = "src/main/resources/images/" + colour + imageEndPaths[i] + ".png";
-            ImageView imageView = imageList.get(i);
+            ImageView imageView = imageViewList.get(i);
             imageView.setImage(new Image(new File(imagePath).toURI().toString()));
         }
     }
@@ -65,7 +62,7 @@ public class PawnPromotionController {
                 pieceChar = 'B';
                 break;
             case "knight":
-                pieceChar = 'K';
+                pieceChar = 'N';
                 break;
             default:
                 pieceChar = 'P';
@@ -77,7 +74,4 @@ public class PawnPromotionController {
         return pieceChar;
     }
 
-    
-
-    
 }

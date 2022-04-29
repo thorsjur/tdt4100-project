@@ -114,15 +114,21 @@ public class GameManager {
         Square selectedSquare = board.getSelectedSquare();
         Square newSelectedSquare = board.getSquare(coordinates);
 
+        // Hvis det ikke er en valgt rute fra før, og det et gyldig valg (se 'selectSquare()')
+        // skal den velge den nye ruten
         if (selectedSquare == null) {
             newSelectedSquare.selectSquare();
             return newSelectedSquare;
         }
+
+        // Hvis du velger samme rute på nytt skal den bli uvalgt
         if (selectedSquare == newSelectedSquare) {
             Square.deselectSelectedSquare(getBoard());
             return newSelectedSquare;
         }
 
+        // Ved å først velge en av dine brikker, og så en rute som gir et gyldig flytt
+        // skal den utføre flyttet
         Piece selectedPiece = selectedSquare.getPiece();
         if (selectedPiece != null && getGame().isValidMove(selectedPiece, coordinates)) {
             getGame().makeMove(selectedPiece, coordinates);

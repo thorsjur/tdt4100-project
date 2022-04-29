@@ -27,13 +27,15 @@ public class King extends Piece {
         for (boolean longCastle : new boolean[] { true, false }) {
             if (canCastle(longCastle)) {
                 int horizontalDifference = ((board.getTurn() == Colour.WHITE) ? 2 : -2);
+
+                // Hvor kongen skal rokkere er avhengig av rotasjonen til brettet
                 if (!board.isBoardRotationEnabled()) {
                     horizontalDifference = (!longCastle ? 2 : -2);
                 } else if (longCastle) {
                     horizontalDifference = -horizontalDifference;
                 }
                 Move castle = new Move(getCoordinates(),
-                        getRelativeCoordinates(new int[]{ 0, horizontalDifference }),
+                        getRelativeCoordinates(new int[] { 0, horizontalDifference }),
                         Move.MoveType.CASTLE);
                 moveList.add(castle);
             }
@@ -42,6 +44,13 @@ public class King extends Piece {
         return moveList;
     }
 
+    /*
+     * Da det er ganske krevende å gå gjennom alle fiendtlige brikker, og se om noen
+     * av de truer kongen, sjekker jeg heller om kongen kan "ta" en fiendtlig brikke
+     * tilsvarende til deres måte å ta. Altså for å sjekke om den er truet av en
+     * løper, må den sjekke om det finnes noen løpere på diagonalene. Videre gjelder
+     * for alle de andre brikkene
+     */
     public boolean isThreatened() {
         // Trusler fra bønder
         Direction[] directions = { Direction.UP_LEFT, Direction.UP_RIGHT };
@@ -92,7 +101,8 @@ public class King extends Piece {
     }
 
     public Rook getCastleRook(boolean longCastle) {
-        if (hasMoved()) return null;
+        if (hasMoved())
+            return null;
         Colour turn = board.getTurn();
         int horizontalDifference;
         if (turn == Colour.WHITE) {
@@ -104,7 +114,7 @@ public class King extends Piece {
                 horizontalDifference = (longCastle ? -4 : 3);
             }
         }
-        Piece rook = getPieceRelativeToPosition(new int[]{ 0, horizontalDifference });
+        Piece rook = getPieceRelativeToPosition(new int[] { 0, horizontalDifference });
         return ((rook instanceof Rook) ? (Rook) rook : null);
     }
 
@@ -115,6 +125,10 @@ public class King extends Piece {
 
     private Piece getOpponentPiece(Direction direction, boolean singleMove) {
         List<Move> moveList = getUnidirectionalMoves(direction, getCoordinates(), true);
+
+        // Hvis brikker kan bare flytte en rute, må første flyttet i flyttlisten være av
+        // typen 'Take'. Dette fungerer da metoden for å finne mulige flytt arbeider seg
+        // fra brikken og utover
         if (singleMove && moveList.size() > 0) {
             Move move = moveList.get(0);
             if (move.getType() == Move.MoveType.TAKE) {
@@ -130,6 +144,11 @@ public class King extends Piece {
         return null;
     }
 
+    /*
+     * Denne metoden sjekker hvorvidt kongen trues av en av de gitte typene i den
+     * gitte retningen. Her kan man også oppgi om det fiendtlige brikken bare kan ta
+     * en rute fra seg selv
+     */
     private boolean isThreatenedByPiece(Direction[] directions, Class<?>[] classArray, boolean singleMove) {
         for (Direction direction : directions) {
             Piece piece = getOpponentPiece(direction, singleMove);
@@ -151,13 +170,13 @@ public class King extends Piece {
             directionCondition = (!turnIsWhite && !longCastle) || (turnIsWhite && longCastle);
         }
         int rookDiff = (longCastle ? 4 : 3);
-        Piece piece = getPieceRelativeToPosition(new int[]{ 0, (directionCondition ? -rookDiff : rookDiff) });
+        Piece piece = getPieceRelativeToPosition(new int[] { 0, (directionCondition ? -rookDiff : rookDiff) });
 
         if (piece == null || !(piece instanceof Rook) || piece.hasMoved()) {
             return false;
         }
         for (int i = 1; i <= rookDiff - 1; i++) {
-            Coordinate toCoordinates = getRelativeCoordinates(new int[]{ 0, (directionCondition ? -i : i) });
+            Coordinate toCoordinates = getRelativeCoordinates(new int[] { 0, (directionCondition ? -i : i) });
             Square passingSquare = board.getSquare(toCoordinates);
             Piece pieceAtSquare = passingSquare.getPiece();
             if (longCastle && pieceAtSquare == null && i == rookDiff - 1) {

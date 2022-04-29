@@ -1,7 +1,5 @@
 package chess.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -103,7 +101,7 @@ public class Board {
         if (piece == null) {
             return null;
         }
-        
+
         return Stream.of(chessBoard)
                 .flatMap(row -> Stream.of(row))
                 .filter(square -> square.getPiece() == piece)
@@ -131,6 +129,9 @@ public class Board {
         if (this.isBoardRotationEnabled == boardRotationEnabled) {
             return;
         }
+
+        // Denne sjekker bare om den skal rotere brettet eller ikke, 
+        // basert på om brettet er rotert fra før og hvem sin tur det er
         if ((isBoardRotated && !boardRotationEnabled)
                 || (!isBoardRotated && boardRotationEnabled && getTurn() == Colour.BLACK)) {
             rotateBoard();
@@ -182,8 +183,8 @@ public class Board {
         if (move == null || !isValidMove(move)) {
             throw new IllegalArgumentException("This is not a valid move");
         }
-        Coordinate pieceCoordinate = getPieceCoordinate(piece);
 
+        Coordinate pieceCoordinate = getPieceCoordinate(piece);
         if (move.getType() == MoveType.CASTLE) {
             int distance = toCoordinates.column() - pieceCoordinate.column();
             boolean isLongCastle = toCoordinates.column() == 2 || toCoordinates.column() == 5;
@@ -209,14 +210,12 @@ public class Board {
 
         resetRecentlyMovedPawns();
         piece.registerMove();
-
         resetSquareStates();
         Square.deselectSelectedSquare(this);
 
         nextTurn();
         pieceConfiguration = new PieceConfiguration(pieceConfiguration, getGrid(),
                 turn, isBoardRotated);
-        
     }
 
     public boolean isBoardRotationEnabled() {
@@ -239,6 +238,9 @@ public class Board {
         Piece[][] tempGrid = getGrid();
         boolean threatened = false;
 
+        // Lagrer tilstand til brettet, slik at flyttet kan gjøres og sjekke om 
+        // det er sjakk. Bruker en metode til flyttet som bare gjør flyttet (uten å 
+        // registrere at den har bevegd seg osv.)
         mitigatedMovePiece(piece, toCoordinates);
         if (getKing(turn) != null)
             threatened = checkBoardForCheck();
@@ -255,6 +257,9 @@ public class Board {
         if (piece == null || getTurn() != piece.getColour()) {
             return false;
         }
+
+        // Sjekker om det er et flytt som tilsvarer parameteret til metoden,
+        // hvis det er det, så skal den returnere sant
         return piece.getValidMoves().stream()
                 .filter(m -> !m.leadsToCheck(this))
                 .anyMatch(m -> move.equals(m));
@@ -336,7 +341,7 @@ public class Board {
             case 'B':
                 newPiece = new Bishop(pawnColour, this);
                 break;
-            case 'K':
+            case 'N':
                 newPiece = new Knight(pawnColour, this);
                 break;
             default:
@@ -432,6 +437,9 @@ public class Board {
     }
 
     private void restoreRotation() {
+
+        // Denne metoden er nødvendig for å forsikre at rotasjonen blir korrekt hvis
+        // man går tilbake gjennom tidligere brettilstander.
         if ((turn == Colour.WHITE && isBoardRotated)
                 || (turn == Colour.BLACK && !isBoardRotated && isBoardRotationEnabled)
                 || (turn == Colour.BLACK && isBoardRotated && !isBoardRotationEnabled)) {

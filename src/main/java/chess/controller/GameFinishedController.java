@@ -10,7 +10,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class GameFinishedController {
-    
+
     private GameManager gameManager;
 
     @FXML
@@ -22,7 +22,9 @@ public class GameFinishedController {
 
     @FXML
     private void handleOnExitButtonClick() {
-        // Flytter exit til hovedcontrolleren (ChessController)
+        // På grunn av at det er brukt showAndWait på denne, vil ikke kodeblokken under
+        // kjøre før denne lukkes, som er ønsket for at vinduene lukkes i rett
+        // rekkefølge
         Platform.runLater(() -> {
             Platform.exit();
             System.exit(0);
@@ -39,12 +41,14 @@ public class GameFinishedController {
     @FXML
     public void handleOnNewGameButtonClick() {
         Game prevGame = gameManager.getGame();
-        gameManager.startNewGame(prevGame.getPlayerOneName(), prevGame.getPlayerTwoName(), gameManager.isBoardRotationEnabled());
+        gameManager.startNewGame(prevGame.getPlayerOneName(), prevGame.getPlayerTwoName(),
+                gameManager.isBoardRotationEnabled());
         closeStage();
     }
 
     private void closeStage() {
-        // Rekke metoder for å hente vinduet; henter først noden som ble trykket på, så scenen og deretter vinduet.
+        // Rekke metoder for å hente vinduet; henter først noden som ble trykket på, så
+        // scenen og deretter vinduet.
         Stage stage = (Stage) winnerLabel.getScene().getWindow();
         stage.close();
     }

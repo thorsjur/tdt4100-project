@@ -43,9 +43,9 @@ public class ChessController {
     private GridPane gridPane;
 
     @FXML
-    private Button settingsButton; 
+    private Button settingsButton;
 
-    @FXML   
+    @FXML
     private Button previousBoardButton;
 
     @FXML
@@ -61,7 +61,8 @@ public class ChessController {
                 .filter(node -> node instanceof Pane)
                 .map(node -> (Pane) node)
                 .collect(Collectors.toMap(pane -> pane,
-                        pane -> gameManager.getSquareAtCoordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane))));
+                        pane -> gameManager.getSquareAtCoordinate(GridPane.getRowIndex(pane),
+                                GridPane.getColumnIndex(pane))));
 
         for (Pane pane : paneToSquareMap.keySet()) {
             ObservableList<String> styleClassList = pane.getStyleClass();
@@ -104,9 +105,9 @@ public class ChessController {
                 .filter(node -> node instanceof Pane)
                 .map(node -> (Pane) node)
                 .collect(Collectors.toMap(pane -> (ImageView) pane.getChildren().get(0),
-                        pane -> gameManager.getSquareAtCoordinate(GridPane.getRowIndex(pane), GridPane.getColumnIndex(pane))));
+                        pane -> gameManager.getSquareAtCoordinate(GridPane.getRowIndex(pane),
+                                GridPane.getColumnIndex(pane))));
 
-        
         for (ImageView imageView : imageViewToSquareMap.keySet()) {
             Square square = imageViewToSquareMap.get(imageView);
             Piece piece = square.getPiece();
@@ -125,7 +126,7 @@ public class ChessController {
             return;
         }
 
-        if (! gameManager.isAtCurrentBoard()) {
+        if (!gameManager.isAtCurrentBoard()) {
             gameManager.goToCurrentBoard();
         }
 
@@ -134,17 +135,15 @@ public class ChessController {
                 .selectSquare(GridPane.getRowIndex(clickedPane), GridPane.getColumnIndex(clickedPane));
 
         Piece piece = clickedSquare.getPiece();
-
         if (gameManager.isPawnApplicableForPromotion(piece)) {
             char charPiece = displayPawnPromotionWindow(piece);
             gameManager.promotePawn(piece, charPiece);
         }
-        updateBoard();
-        
+
         if (gameManager.isGameFinished()) {
             initializeGameFinished();
         }
-        
+        updateBoard();
     }
 
     @FXML
@@ -158,7 +157,7 @@ public class ChessController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/Settings.fxml"));
 
         settingsStage.setTitle("Settings");
-        
+
         settingsStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
         try {
             settingsStage.setScene(new Scene(loader.load()));
@@ -184,7 +183,7 @@ public class ChessController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/Loading.fxml"));
 
         loadingStage.setTitle("Load Game");
-        
+
         loadingStage.getIcons().add(new Image(new File("src/main/resources/images/WhiteKing.png").toURI().toString()));
         try {
             loadingStage.setScene(new Scene(loader.load()));
@@ -207,7 +206,7 @@ public class ChessController {
         Stage pawnPromotionStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess/PawnPromotion.fxml"));
         Scene scene;
-        
+
         try {
             scene = new Scene(loader.load());
             pawnPromotionStage.setScene(scene);
@@ -281,6 +280,9 @@ public class ChessController {
     public void initialize() {
         gameManager = new GameManager();
 
+        // Merk at det er med hensikt å ikke validere navnet til spillerene, da det skal
+        // være fullt mulig å ikke skrive inn et navn eller bruke kallenavn med alle
+        // mulige tegn
         TextInputDialog[] nameDialogs = { new TextInputDialog(), new TextInputDialog() };
         nameDialogs[0].setHeaderText("Enter the name of Player One: ");
         nameDialogs[1].setHeaderText("Enter the name of Player Two: ");
@@ -303,7 +305,7 @@ public class ChessController {
         root.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                
+
                 if (event.getCode() == KeyCode.LEFT) {
                     gameManager.goToPreviousBoard();
                 } else if (event.getCode() == KeyCode.RIGHT) {

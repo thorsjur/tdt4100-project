@@ -35,7 +35,9 @@ public class Knight extends Piece {
             } catch (IndexOutOfBoundsException e) {
                 continue;
             }
-            
+
+            // For hvert mulig flytt, sjekker den om den lander på en ledig rute (gyldig
+            // flytt) eller om den lander på en fiendtlig brikke (gyldig flytt)
             Piece atPiece = board.getPiece(toCoordinates);
             if (atPiece == null) {
                 moveList.add(new Move(fromCoordinates, toCoordinates, Move.MoveType.MOVE));
