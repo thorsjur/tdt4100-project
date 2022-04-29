@@ -58,8 +58,6 @@ public class KingTest {
         // Merk denne metoden ikke tar hensyn til om kongen settes i sjakk av flyttet,
         // da det håndteres en annen sted i koden ...
         King whiteKing2 = getKing(boardOne, Colour.WHITE);
-        Coordinate whiteKing2Coord = whiteKing2.getCoordinates();
-
         assertTrue(whiteKing2.getValidMoves().size() == 7);
         assertTrue(whiteKing2.getValidMoves().stream()
                 .filter(move -> move.getType() == Move.MoveType.TAKE)
