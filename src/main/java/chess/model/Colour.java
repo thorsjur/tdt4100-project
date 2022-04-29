@@ -16,9 +16,9 @@ public enum Colour {
     };
 
     public static Colour parseColour(String colour) {
-        if (colour.equals("WHITE") || colour.equals("white") || colour.equals("White")) {
+        if (colour.toLowerCase().equals("white")) {
             return WHITE;
-        } else if (colour.equals("BLACK") || colour.equals("black") || colour.equals("Black")) {
+        } else if (colour.toLowerCase().equals("black")) {
             return BLACK;
         } else {
             return null;
