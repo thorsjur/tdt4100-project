@@ -92,6 +92,7 @@ public class LoadController {
             return;
         }
 
+        // Definerer en ny type celle for å kunne vise den informasjonen jeg ønsker
         listViewGameData.setCellFactory(new Callback<ListView<GameData>, ListCell<GameData>>() {
             @Override
             public ListCell<GameData> call(ListView<GameData> param) {
@@ -106,6 +107,9 @@ public class LoadController {
         stage.close();
     }
 
+    // Definerer en ny innerklasse som utvider cellen i ListView
+    // Med denne kan jeg selv velge hvordan den skal se ut, og dermed
+    // vise den informasjonen jeg ønsker.
     private class GameCell extends ListCell<GameData> {
 
         private Text date;

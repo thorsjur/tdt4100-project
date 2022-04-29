@@ -49,7 +49,7 @@ public class Board {
             return row() == coordinate.row() && column() == coordinate.column();
         }
 
-        private void validateCoordinate(Coordinate coord) throws IndexOutOfBoundsException {
+        private static void validateCoordinate(Coordinate coord) throws IndexOutOfBoundsException {
             if (coord.row() < 0 || coord.column() < 0 || coord.row() > 7 || coord.column() > 7) {
                 throw new IndexOutOfBoundsException("Invalid coordinate");
             }
@@ -130,7 +130,7 @@ public class Board {
             return;
         }
 
-        // Denne sjekker bare om den skal rotere brettet eller ikke, 
+        // Denne sjekker bare om den skal rotere brettet eller ikke,
         // basert på om brettet er rotert fra før og hvem sin tur det er
         if ((isBoardRotated && !boardRotationEnabled)
                 || (!isBoardRotated && boardRotationEnabled && getTurn() == Colour.BLACK)) {
@@ -146,6 +146,10 @@ public class Board {
         this.pieceConfiguration = pieceConfiguration;
     }
 
+    // restoreRotation() brukes i disse tre metodene med
+    // hensikt å gjøre at det er bare en farge som holder seg
+    // nederst, til tross for om brettrotasjon har vært på eller 
+    // tidligere.
     public void goToCurrentPieceConfiguration() {
         while (pieceConfiguration.hasNextGame()) {
             pieceConfiguration = pieceConfiguration.getNextGame();
@@ -198,7 +202,7 @@ public class Board {
 
         if (move.getType() == MoveType.EN_PASSANT) {
 
-            // Bonden som skal tas er én ruter under der din bonde ender opp
+            // Bonden som skal tas er én rute under der din bonde ender opp
             Coordinate opponentPawnCoordinate = toCoordinates
                     .addVector(Direction.DOWN.getDirectionVector(this));
 
@@ -230,16 +234,15 @@ public class Board {
     }
 
     public boolean checkBoardForCheck() {
-        boolean threatened = getKing(turn).isThreatened();
-        return threatened;
+        return getKing(turn).isThreatened();
     }
 
     public boolean checkNextBoardForCheck(Piece piece, Coordinate toCoordinates) {
         Piece[][] tempGrid = getGrid();
         boolean threatened = false;
 
-        // Lagrer tilstand til brettet, slik at flyttet kan gjøres og sjekke om 
-        // det er sjakk. Bruker en metode til flyttet som bare gjør flyttet (uten å 
+        // Lagrer tilstand til brettet, slik at flyttet kan gjøres og sjekke om
+        // det er sjakk. Bruker en metode til flyttet som bare gjør flyttet (uten å
         // registrere at den har bevegd seg osv.)
         mitigatedMovePiece(piece, toCoordinates);
         if (getKing(turn) != null)
@@ -312,9 +315,8 @@ public class Board {
         // Hvis den ikke er tom, vil den fjerne en brikke (som ikke er ønsket)
         // Dette betyr denne ikke kan sjekke om en okkupert rute er truet, men det er en
         // funksjonalitet som ikke er relevant for koden
-
         if (square.getPiece() != null)
-            return false;
+            throw new IllegalArgumentException("Denne metoden kan bare brukes på ledige ruter");
 
         King tempKing = new King(turn, this);
         square.setPiece(tempKing);
@@ -349,15 +351,9 @@ public class Board {
         }
         setPiece((newPiece), pawn.getCoordinates());
 
-        // PieceConfiguration må registrere at bonden er promotert, men da dette er
-        // etter turen er byttet, må brettet roteres før den settes, og så tilbake igjen
-        if (isBoardRotationEnabled) {
-            rotateBoard();
-            pieceConfiguration.setPieceGrid(getGrid());
-            rotateBoard();
-        } else {
-            pieceConfiguration.setPieceGrid(getGrid());
-        }
+        // Denne linjen er for å oppdatere tilstand til PieceConfiguration med den nye
+        // brikken
+        pieceConfiguration.setPieceGrid(getGrid());
     }
 
     private King getKing(Colour colour) {
